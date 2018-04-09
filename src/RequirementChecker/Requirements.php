@@ -10,14 +10,13 @@
  * file that was distributed with this source code.
  */
 
-namespace KevinGH\Box\Requirement;
+namespace KevinGH\Box\RequirementChecker;
 
-use Composer\Semver\Semver;
 use Symfony\Requirements\RequirementCollection;
 
 /**
  * Collect the list of requirements for running the project. Code in this file must be PHP 5.3+ compatible as is used
- * to know if PHP-Scoper can be run or not.
+ * to know if the application can be run or not.
  */
 final class Requirements extends RequirementCollection
 {

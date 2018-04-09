@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the humbug/php-scoper package.
+ * This file is part of the humbug/Box package.
  *
  * Copyright (c) 2017 Théo FIDRY <theo.fidry@gmail.com>,
  *                    Pádraic Brady <padraic.brady@gmail.com>
@@ -10,25 +10,37 @@
  * file that was distributed with this source code.
  */
 
-namespace KevinGH\Box\Requirement;
+namespace KevinGH\Box\RequirementChecker;
 
-use Humbug\PhpScoper\Autoload\Requirements;
+use function array_reduce;
+use function function_exists;
+use function getenv;
+use const PHP_EOL;
+use function posix_isatty;
+use function str_pad;
+use const STR_PAD_RIGHT;
+use function str_repeat;
+use function strlen;
 use Symfony\Requirements\Requirement;
+use function trim;
+use function wordwrap;
 
 //
-// Code in this file must be PHP 5.3+ compatible as is used to know if PHP-Scoper can be run or not.
+// Code in this file must be PHP 5.3+ compatible as is used to know if Box can be run or not. It contains the necessary code to execute the
+// check requirements.
 //
 
 /**
  * @param string $composerJson
  * @param bool   $verbose
+ * @param bool   $debug
  *
  * @return bool
  */
-function check_requirements($composerJson, $verbose)
+function check_requirements($composerJson, $verbose, $debug)
 {
     $lineSize = 70;
-    $requirements = new Requirements($composerJson);
+    $requirements = AppRequirements::create($composerJson);
     $iniPath = $requirements->getPhpIniPath();
 
     $checkPassed = array_reduce(
@@ -40,7 +52,7 @@ function check_requirements($composerJson, $verbose)
          * @return bool
          */
         function ($checkPassed, Requirement $requirement) use ($lineSize) {
-            return $checkPassed || null === get_error_message($requirement, $lineSize);
+            return $checkPassed && null === get_error_message($requirement, $lineSize);
         },
         false
     );
@@ -50,7 +62,7 @@ function check_requirements($composerJson, $verbose)
         $verbose = true;
     }
 
-    echo_title('PHP-Scoper Requirements Checker', null, $verbose);
+    echo_title('Box Requirements Checker', 'title', $verbose);
 
     vecho('> PHP is using the following php.ini file:'.PHP_EOL, $verbose);
 
@@ -61,14 +73,20 @@ function check_requirements($composerJson, $verbose)
     }
 
     vecho(PHP_EOL.PHP_EOL, $verbose);
-    vecho('> Checking PHP-Scoper requirements:'.PHP_EOL.'  ', $verbose);
+    vecho('> Checking Box requirements:'.PHP_EOL.'  ', $verbose);
 
     $messages = [];
 
     foreach ($requirements->getRequirements() as $requirement) {
         if ($helpText = get_error_message($requirement, $lineSize)) {
-            echo_style('red', 'E', $verbose);
-            $messages['error'][] = $helpText;
+            if ($debug) {
+                echo_style('red', '✘ '.$requirement->getTestMessage().PHP_EOL.'  ', $verbose);
+            } else {
+                echo_style('red', 'E', $verbose);
+                $messages['error'][] = $helpText;
+            }
+        } elseif ($debug) {
+            echo_style('green', '✔ '.$requirement->getHelpText().PHP_EOL.'  ', $verbose);
         } else {
             echo_style('green', '.', $verbose);
         }
@@ -84,14 +102,16 @@ function check_requirements($composerJson, $verbose)
     }
 
     if ($checkPassed) {
-        echo_block('success', 'OK', 'Your system is ready to run PHP-Scoper.', $verbose);
+        echo_block($lineSize, 'success', 'OK', 'Your system is ready to run the application.', $verbose);
     } else {
-        echo_block('error', 'ERROR', 'Your system is not ready to run PHP-Scoper', $verbose);
+        echo_block($lineSize, 'error', 'ERROR', 'Your system is not ready to run the application', $verbose);
 
-        echo_title('Fix the following mandatory requirements', 'red', $verbose);
+        if (false === $debug) {
+            echo_title('Fix the following mandatory requirements', 'red', $verbose);
 
-        foreach ($messages['error'] as $helpText) {
-            vecho(' * '.$helpText.PHP_EOL, $verbose);
+            foreach ($messages['error'] as $helpText) {
+                vecho(' * '.$helpText.PHP_EOL, $verbose);
+            }
         }
     }
 
@@ -129,16 +149,12 @@ function get_error_message(Requirement $requirement, $lineSize)
 
     $errorMessage = wordwrap($requirement->getTestMessage(), $lineSize - 3, PHP_EOL.'   ').PHP_EOL;
 
-    if ('' !== $requirement->getHelpText()) {
-        $errorMessage .= '   > '.wordwrap($requirement->getHelpText(), $lineSize - 5, PHP_EOL.'   > ').PHP_EOL;
-    }
-
     return $errorMessage;
 }
 
 /**
  * @param string      $title
- * @param string|null $style
+ * @param string $style
  * @param bool        $verbose
  */
 function echo_title($title, $style = null, $verbose)
@@ -147,11 +163,9 @@ function echo_title($title, $style = null, $verbose)
         return;
     }
 
-    $style = $style ?: 'title';
-
     echo PHP_EOL;
     echo_style($style, $title.PHP_EOL, $verbose);
-    echo_style($style, str_repeat('~', strlen($title)).PHP_EOL, $verbose);
+    echo_style($style, str_repeat('=', strlen($title)).PHP_EOL, $verbose);
     echo PHP_EOL;
 }
 
@@ -173,34 +187,36 @@ function echo_style($style, $message, $verbose)
         'green' => "\033[32m",
         'yellow' => "\033[33m",
         'error' => "\033[37;41m",
-        'success' => "\033[37;42m",
-        'title' => "\033[34m",
+        'success' => "\033[30;42m",
     );
+
+    $styles['title'] = $styles['yellow'];
+
     $supports = has_color_support();
 
     echo($supports ? $styles[$style] : '').$message.($supports ? $styles['reset'] : '');
 }
 
 /**
+ * @param int $lineSize
  * @param string $style
  * @param string $title
  * @param string $message
  * @param bool   $verbose
  */
-function echo_block($style, $title, $message, $verbose)
+function echo_block($lineSize, $style, $title, $message, $verbose)
 {
     if (false === $verbose) {
         return;
     }
 
-    $message = ' '.trim($message).' ';
-    $width = strlen($message);
+    $message = str_pad(' ['.$title.'] '.trim($message).' ', $lineSize, ' ', STR_PAD_RIGHT);
+
+    $width = $lineSize;
 
     echo PHP_EOL.PHP_EOL;
 
     echo_style($style, str_repeat(' ', $width), $verbose);
-    echo PHP_EOL;
-    echo_style($style, str_pad(' ['.$title.']', $width, ' ', STR_PAD_RIGHT), $verbose);
     echo PHP_EOL;
     echo_style($style, $message, $verbose);
     echo PHP_EOL;

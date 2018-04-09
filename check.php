@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use function KevinGH\Box\Requirement\check_requirements;
+use function KevinGH\Box\RequirementChecker\check_requirements;
 
 require 'vendor/autoload.php';
-require 'src/Requirement/check.php';
+require 'src/RequirementChecker/check.php';
 
-$checkPassed = check_requirements(__DIR__.'/composer.json', true);
+$checkPassed = check_requirements(__DIR__.'/composer.json', true, false);
 
 if (false === $checkPassed) {
     exit(1);

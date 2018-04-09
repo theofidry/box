@@ -4074,7 +4074,8 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^7.1",
-        "ext-phar": "*"
+        "ext-phar": "*",
+        "ext-sqlite3": "*"
     },
     "platform-dev": []
 }
