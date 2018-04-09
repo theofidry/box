@@ -41,14 +41,13 @@ final class Checker
 
     public static function checkRequirements()
     {
-        require 'vendor/autoload.php';
-
         $requirements = unserialize(
             self::$requirements,
             [
                 'allowed_classes' => [
-                    RequirementCollection::class,
-                    Requirement::class,
+                    'ArrayIterator',
+                    'Symfony\Requirements\Requirement',
+                    'Symfony\Requirements\RequirementCollection',
                 ]
             ]
         );
