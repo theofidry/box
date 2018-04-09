@@ -2747,6 +2747,20 @@ COMMENT;
         $this->assertFalse($this->config->isPrivateKeyPrompt());
     }
 
+    public function test_the_requirement_checker_is_enabled_by_default(): void
+    {
+        $this->assertTrue($this->config->checkRequirements());
+    }
+
+    public function test_the_requirement_checker_can_be_disabled(): void
+    {
+        $this->setConfig([
+            'check-requirements' => false,
+        ]);
+
+        $this->assertFalse($this->config->checkRequirements());
+    }
+
     public function provideInvalidCompressionAlgorithms(): Generator
     {
         yield 'Invalid string key' => [

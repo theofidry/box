@@ -43,8 +43,25 @@ class StubGeneratorTest extends TestCase
         );
     }
 
+    public function test_it_can_generate_a_stub_with_the_default_config(): void
+    {
+        $expected = <<<'STUB'
+<?php
+
+require 'phar://' . __FILE__ . '/.box/check_requirements.php';
+
+__HALT_COMPILER(); ?>
+
+STUB;
+        $actual = $this->generator->generate();
+
+        $this->assertSame($expected, $actual);
+    }
+
     public function test_it_can_generate_an_empty_stub(): void
     {
+        $this->generator->checkRequirements(false);
+
         $expected = <<<'STUB'
 <?php
 
@@ -77,7 +94,7 @@ TEXT
  * Yolo
  */
 
-// No PHAR config
+require 'phar://' . __FILE__ . '/.box/check_requirements.php';
 
 __HALT_COMPILER(); ?>
 
@@ -95,7 +112,7 @@ STUB;
 #!/usr/local/bin/env php
 <?php
 
-// No PHAR config
+require 'phar://' . __FILE__ . '/.box/check_requirements.php';
 
 __HALT_COMPILER(); ?>
 
@@ -112,7 +129,7 @@ STUB;
         $expected = <<<'STUB'
 <?php
 
-// No PHAR config
+require 'phar://' . __FILE__ . '/.box/check_requirements.php';
 
 __HALT_COMPILER(); ?>
 
@@ -131,6 +148,8 @@ STUB;
 
 Phar::mapPhar('acme.phar');
 
+require 'phar://acme.phar/.box/check_requirements.php';
+
 __HALT_COMPILER(); ?>
 
 STUB;
@@ -146,7 +165,7 @@ STUB;
         $expected = <<<'STUB'
 <?php
 
-// No PHAR config
+require 'phar://' . __FILE__ . '/.box/check_requirements.php';
 
 __HALT_COMPILER(); ?>
 
@@ -159,6 +178,26 @@ STUB;
     public function test_it_can_generate_a_stub_with_an_index_file(): void
     {
         $this->generator->index('acme.php');
+
+        $expected = <<<'STUB'
+<?php
+
+require 'phar://' . __FILE__ . '/.box/check_requirements.php';
+
+require 'phar://' . __FILE__ . '/acme.php';
+
+__HALT_COMPILER(); ?>
+
+STUB;
+        $actual = $this->generator->generate();
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function test_it_can_generate_a_stub_with_an_index_file_and_without_the_requirements_checker(): void
+    {
+        $this->generator->index('acme.php');
+        $this->generator->checkRequirements(false);
 
         $expected = <<<'STUB'
 <?php
@@ -182,6 +221,8 @@ STUB;
 
 Phar::interceptFileFuncs();
 
+require 'phar://' . __FILE__ . '/.box/check_requirements.php';
+
 __HALT_COMPILER(); ?>
 
 STUB;
@@ -204,6 +245,7 @@ TEXT
             ->alias('test.phar')
             ->index('index.php')
             ->intercept(true)
+            ->checkRequirements(true)
         ;
 
         $expected = <<<'STUB'
@@ -218,6 +260,9 @@ TEXT
 
 Phar::mapPhar('test.phar');
 Phar::interceptFileFuncs();
+
+require 'phar://test.phar/.box/check_requirements.php';
+
 require 'phar://test.phar/index.php';
 
 __HALT_COMPILER(); ?>

@@ -9,6 +9,8 @@
 !/bin/box.bat
 /dist/
 /fixtures/default_stub.php
+/fixtures/check-requirements/*/actual-output
+/fixtures/check-requirements/*/default.phar
 /vendor/
 /vendor-bin/*/composer.lock
 /vendor-bin/*/vendor/

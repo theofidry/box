@@ -148,6 +148,7 @@ $shebang
  */
 
 Phar::mapPhar('alias-test.phar');
+
 require 'phar://alias-test.phar/run.php';
 
 __HALT_COMPILER(); ?>
@@ -306,6 +307,7 @@ OUTPUT;
  */
 
 Phar::mapPhar('box-auto-generated-alias-__uniqid__.phar');
+
 require 'phar://box-auto-generated-alias-__uniqid__.phar/index.php';
 
 __HALT_COMPILER(); ?>
@@ -468,6 +470,7 @@ OUTPUT;
  */
 
 Phar::mapPhar('alias-test.phar');
+
 require 'phar://alias-test.phar/other/run.php';
 
 __HALT_COMPILER(); ?>
@@ -564,6 +567,7 @@ PHP;
  */
 
 Phar::mapPhar('box-auto-generated-alias-__uniqid__.phar');
+
 require 'phar://box-auto-generated-alias-__uniqid__.phar/other/run.php';
 
 __HALT_COMPILER(); ?>
