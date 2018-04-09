@@ -90,6 +90,7 @@ class BoxTest extends FileSystemTestCase
 
     public function test_it_can_add_a_file_to_the_phar(): void
     {
+$this->fail();
         $file = 'foo';
         $contents = 'test';
 

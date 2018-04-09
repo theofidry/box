@@ -18,28 +18,33 @@ use function array_intersect_key;
 use function array_key_exists;
 use function file_exists;
 use function json_last_error_msg;
+use function phpversion;
 use function sprintf;
 use function str_replace;
 use function substr;
 use Symfony\Requirements\RequirementCollection;
 use UnexpectedValueException;
+use function version_compare;
 
 /**
- * Collect the list of requirements for running the application. Code in this file must be PHP 5.3+ compatible as is used to know if the
- * application can be run.
+ * Collect the list of requirements for running the application.
+ *
+ * @private
  */
-final class AppRequirements extends RequirementCollection
+final class AppRequirementsFactory
 {
     private const SELF_PACKAGE = '__APPLICATION__';
 
     /**
      * @param string $composerJson Path to the `composer.json` file
      *
-     * @return self Configured requirements
+     * @throws UnexpectedValueException When the file could not be found or decoded
+     *
+     * @return RequirementCollection Configured requirements
      */
-    public static function create($composerJson)
+    public static function create(string $composerJson): RequirementCollection
     {
-        $requirements = new self();
+        $requirements = new RequirementCollection();
 
         $composerLockContents = self::retrieveComposerLockContents($composerJson);
 
@@ -49,11 +54,7 @@ final class AppRequirements extends RequirementCollection
         return $requirements;
     }
 
-    /**
-     * @param self $requirements
-     * @param array $composerLockContents
-     */
-    private static function configurePhpVersionRequirements($requirements, $composerLockContents)
+    private static function configurePhpVersionRequirements(RequirementCollection $requirements, array $composerLockContents): void
     {
         $installedPhpVersion = phpversion();
 
@@ -104,11 +105,7 @@ final class AppRequirements extends RequirementCollection
         }
     }
 
-    /**
-     * @param self $requirements
-     * @param array $composerLockContents
-     */
-    private static function configureExtensionRequirements($requirements, $composerLockContents)
+    private static function configureExtensionRequirements(RequirementCollection $requirements, array $composerLockContents): void
     {
         $extensionRequirements = self::collectExtensionRequirements($composerLockContents);
 
@@ -154,7 +151,7 @@ final class AppRequirements extends RequirementCollection
      *
      * @return array Associative array containing the list of extensions required
      */
-    private static function collectExtensionRequirements($composerLockContents)
+    private static function collectExtensionRequirements(array $composerLockContents): array
     {
         $requirements = [];
         $polyfills = [];
@@ -205,7 +202,7 @@ final class AppRequirements extends RequirementCollection
      *
      * @return array Associative array containing the application platform requirements
      */
-    private static function retrieveComposerLockContents($composerJson)
+    private static function retrieveComposerLockContents(string $composerJson): array
     {
         $composerLock = str_replace('.json', '.lock', $composerJson);
 
@@ -219,7 +216,7 @@ final class AppRequirements extends RequirementCollection
      *
      * @throws UnexpectedValueException When the file does not exists
      */
-    private static function checkFileExists($file)
+    private static function checkFileExists(string $file): void
     {
         if (false === $file) {
             throw new UnexpectedValueException(
@@ -236,9 +233,9 @@ final class AppRequirements extends RequirementCollection
      *
      * @throws UnexpectedValueException When the file could not be decoded
      *
-     * @return string Decoded file contents
+     * @return array Decoded file contents
      */
-    private static function decodeJson($file)
+    private static function decodeJson(string $file): array
     {
         $contents = @json_decode(file_get_contents($file), true);
 
