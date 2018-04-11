@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace KevinGH\Box;
 
 use Assert\Assertion;
+use KevinGH\Box\RequirementChecker\RequirementsDumper;
 
 /**
  * Generates a new PHP bootstrap loader stub for a PHAR.
@@ -23,6 +24,8 @@ use Assert\Assertion;
  */
 final class StubGenerator
 {
+    private const CHECK_FILE_NAME = RequirementsDumper::CHECK_FILE_NAME;
+
     private const STUB_TEMPLATE = <<<'STUB'
 __BOX_SHEBANG__
 <?php
@@ -209,9 +212,11 @@ STUB;
                 $stub[] = '';
             }
 
+            $checkRequirementsFile = self::CHECK_FILE_NAME;
+
             $stub[] = null === $this->alias
-                ? "require 'phar://' . __FILE__ . '/.box/check_requirements.php';"
-                : "require 'phar://{$this->alias}/.box/check_requirements.php';"
+                ? "require 'phar://' . __FILE__ . '/.box/{$checkRequirementsFile}';"
+                : "require 'phar://{$this->alias}/.box/{$checkRequirementsFile}';"
             ;
 
             $previous = true;

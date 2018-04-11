@@ -8,6 +8,5 @@ use KevinGH\Box\RequirementChecker\RequirementsDumper;
 
 require 'vendor/autoload.php';
 
-$checker = RequirementsDumper::dumpChecker(__DIR__.'/composer.json');
+$checker = RequirementsDumper::dump(__DIR__.'/composer.json');
 
-dump_file('check.php', $checker, true);

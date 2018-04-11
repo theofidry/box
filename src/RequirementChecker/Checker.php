@@ -40,9 +40,9 @@ final class Checker
      */
     private static $requirements = '__REQUIREMENTS_SERIALIZED_VALUE__';
 
-    public static function checkRequirements()
+    public static function checkRequirements(): bool
     {
-        if ('__REQUIREMENTS_SERIALIZED_VALUE__' === self::$requirements) {
+        if ('__REQUIREMENTS_SERI'.'ALIZED_VALUE__' === self::$requirements) {
             throw new LogicException('The checker should be dumped first.');
         }
 
@@ -59,11 +59,7 @@ final class Checker
 
         [$verbose, $debug] = self::retrieveConfig();
 
-        $checkPassed = self::check($requirements, $verbose, $debug);
-
-        if (false === $checkPassed) {
-            exit(1);
-        }
+        return self::check($requirements, $verbose, $debug);
     }
 
     /**

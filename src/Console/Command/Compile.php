@@ -382,7 +382,7 @@ EOF
             'Adding requirements checker'
         );
 
-        $checkFiles = RequirementsDumper::dumpChecker(
+        $checkFiles = RequirementsDumper::dump(
             make_path_absolute(
                 'composer.json',
                 $config->getBasePath()
@@ -392,7 +392,7 @@ EOF
         foreach ($checkFiles as $fileWithContents) {
             [$file, $contents] = $fileWithContents;
 
-            $box->addFile($file, $contents);
+            $box->addFile('.box/'.$file, $contents);
         }
 
         return true;
