@@ -12,6 +12,7 @@
 
 namespace KevinGH\Box\RequirementChecker;
 
+use LogicException;
 use Symfony\Requirements\Requirement;
 use const PHP_EOL;
 use const STR_PAD_RIGHT;
@@ -41,6 +42,10 @@ final class Checker
 
     public static function checkRequirements()
     {
+        if ('__REQUIREMENTS_SERIALIZED_VALUE__' === self::$requirements) {
+            throw new LogicException('The checker should be dumped first.');
+        }
+
         $requirements = unserialize(
             self::$requirements,
             [

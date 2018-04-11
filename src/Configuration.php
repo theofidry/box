@@ -345,6 +345,11 @@ BANNER;
         return $this->mainScriptContents;
     }
 
+    public function checkRequirements(): bool
+    {
+        return true;
+    }
+
     public function getTmpOutputPath(): string
     {
         return $this->tmpOutputPath;

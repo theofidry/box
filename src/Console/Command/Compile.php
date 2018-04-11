@@ -22,8 +22,10 @@ use KevinGH\Box\Box;
 use KevinGH\Box\Compactor;
 use KevinGH\Box\Configuration;
 use KevinGH\Box\Console\Logger\BuildLogger;
+use function KevinGH\Box\FileSystem\make_path_absolute;
 use KevinGH\Box\MapFile;
 use KevinGH\Box\PhpSettingsHandler;
+use KevinGH\Box\RequirementChecker\RequirementsDumper;
 use KevinGH\Box\StubGenerator;
 use RuntimeException;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -171,9 +173,11 @@ HELP;
         // file used for debugging purposes and the Composer dump autoloading will not work correctly otherwise.
         $main = $this->registerMainScript($config, $box, $logger);
 
+        $check = $this->registerRequirementsChecker($config, $box, $logger);
+
         $this->addFiles($config, $box, $logger, $io);
 
-        $this->registerStub($config, $box, $main, $logger);
+        $this->registerStub($config, $box, $main, $check, $logger);
         $this->configureMetadata($config, $box, $logger);
 
         $this->configureCompressionAlgorithm($config, $box, $input->getOption(self::DEV_OPTION), $logger);
@@ -365,15 +369,44 @@ EOF
         return $localMain;
     }
 
-    private function registerStub(Configuration $config, Box $box, string $main, BuildLogger $logger): void
+    private function registerRequirementsChecker(Configuration $config, Box $box, BuildLogger $logger): bool
     {
-        if (true === $config->isStubGenerated()) {
+        $check = $config->checkRequirements();
+
+        if (false === $check) {
+            return false;
+        }
+
+        $logger->log(
+            BuildLogger::QUESTION_MARK_PREFIX,
+            'Adding requirements checker'
+        );
+
+        $checkFiles = RequirementsDumper::dumpChecker(
+            make_path_absolute(
+                'composer.json',
+                $config->getBasePath()
+            )
+        );
+
+        foreach ($checkFiles as $fileWithContents) {
+            [$file, $contents] = $fileWithContents;
+
+            $box->addFile($file, $contents);
+        }
+
+        return true;
+    }
+
+    private function registerStub(Configuration $config, Box $box, string $main, bool $checkRequirements, BuildLogger $logger): void
+    {
+        if ($config->isStubGenerated()) {
             $logger->log(
                 BuildLogger::QUESTION_MARK_PREFIX,
                 'Generating new stub'
             );
 
-            $stub = $this->createStub($config, $main, $logger);
+            $stub = $this->createStub($config, $main, $checkRequirements, $logger);
 
             $box->getPhar()->setStub($stub->generate());
         } elseif (null !== ($stub = $config->getStubPath())) {
@@ -387,6 +420,7 @@ EOF
 
             $box->registerStub($stub);
         } else {
+            // TODO: add warning that the check requirements could not be added
             $aliasWasAdded = $box->getPhar()->setAlias($config->getAlias());
 
             Assertion::true(
@@ -512,12 +546,13 @@ EOF
         }
     }
 
-    private function createStub(Configuration $config, ?string $main, BuildLogger $logger): StubGenerator
+    private function createStub(Configuration $config, ?string $main, bool $checkRequirements, BuildLogger $logger): StubGenerator
     {
         $stub = StubGenerator::create()
             ->alias($config->getAlias())
             ->index($main)
             ->intercept($config->isInterceptFileFuncs())
+            ->checkRequirements($checkRequirements)
         ;
 
         if (null !== ($shebang = $config->getShebang())) {

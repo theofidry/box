@@ -26,7 +26,10 @@ use Symfony\Requirements\RequirementCollection;
  */
 final class RequirementsDumper
 {
-    public static function dumpChecker(string $composerJson): string
+    /**
+     * @return string[][]
+     */
+    public static function dumpChecker(string $composerJson): array
     {
         $requirements = self::dumpRequirements($composerJson);
 
@@ -49,6 +52,7 @@ Checker::checkRequirements();
 
 PHP;
 
+        return [];
         return $checker;
     }
 

@@ -59,6 +59,8 @@ STUB;
      */
     private $shebang;
 
+    private $checkRequirements = true;
+
     /**
      * Creates a new instance of the stub generator.
      *
@@ -141,6 +143,13 @@ STUB;
         return $this->shebang;
     }
 
+    public function checkRequirements(bool $checkRequirements): self
+    {
+        $this->checkRequirements = $checkRequirements;
+
+        return $this;
+    }
+
     /**
      * Escapes an argument so it can be written as a string in a call.
      *
@@ -180,17 +189,39 @@ STUB;
 
     private function generatePharConfigStmt(): ?string
     {
+        $previous = false;
         $stub = [];
 
         if (null !== $aliasStmt = $this->getAliasStmt()) {
             $stub[] = $aliasStmt;
+
+            $previous = true;
         }
 
         if ($this->intercept) {
             $stub[] = 'Phar::interceptFileFuncs();';
+
+            $previous = true;
+        }
+
+        if (false !== $this->checkRequirements) {
+            if ($previous) {
+                $stub[] = '';
+            }
+
+            $stub[] = null === $this->alias
+                ? "require 'phar://' . __FILE__ . '/.box/check_requirements.php';"
+                : "require 'phar://{$this->alias}/.box/check_requirements.php';"
+            ;
+
+            $previous = true;
         }
 
         if (null !== $this->index) {
+            if ($previous) {
+                $stub[] = '';
+            }
+
             $stub[] = null === $this->alias
                 ? "require 'phar://' . __FILE__ . '/{$this->index}';"
                 : "require 'phar://{$this->alias}/{$this->index}';"
