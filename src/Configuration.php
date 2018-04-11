@@ -127,6 +127,7 @@ BANNER;
      * @param null|string   $stubPath              The PHAR stub file path
      * @param bool          $isInterceptFileFuncs  Whether or not Phar::interceptFileFuncs() should be used
      * @param bool          $isStubGenerated       Whether or not if the PHAR stub should be generated
+     * @param bool          $checkRequirements     Whether the PHAR will check the application requirements before running
      */
     private function __construct(
         ?string $file,

@@ -227,7 +227,7 @@ final class Box
     public function addFile(string $file, string $contents = null, bool $binary = false): string
     {
         if (null === $contents) {
-            $contents = file_contents($contents);
+            $contents = file_contents($file);
         }
 
         $relativePath = make_path_relative($file, $this->basePath);

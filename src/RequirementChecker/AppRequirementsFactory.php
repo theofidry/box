@@ -17,8 +17,10 @@ use function array_diff_key;
 use function array_intersect_key;
 use function array_key_exists;
 use function array_map;
+use Assert\Assertion;
 use function file_exists;
 use function json_last_error_msg;
+use KevinGH\Box\Json\Json;
 use function phpversion;
 use function sprintf;
 use function str_replace;
@@ -212,60 +214,12 @@ final class AppRequirementsFactory
         return array_diff_key($requirements, $polyfills);
     }
 
-    /**
-     * @param string $composerJson
-     *
-     * @throws UnexpectedValueException
-     *
-     * @return array Associative array containing the application platform requirements
-     */
     private static function retrieveComposerLockContents(string $composerJson): array
     {
         $composerLock = str_replace('.json', '.lock', $composerJson);
 
-        self::checkFileExists($composerLock);
+        Assertion::file($composerLock);
 
-        return self::decodeJson($composerLock);
-    }
-
-    /**
-     * @param string $file
-     *
-     * @throws UnexpectedValueException When the file does not exists
-     */
-    private static function checkFileExists(string $file): void
-    {
-        if (false === $file) {
-            throw new UnexpectedValueException(
-                sprintf(
-                    'Could not locate the file "%s"',
-                    json_last_error_msg()
-                )
-            );
-        }
-    }
-
-    /**
-     * @param string $file
-     *
-     * @throws UnexpectedValueException When the file could not be decoded
-     *
-     * @return array Decoded file contents
-     */
-    private static function decodeJson(string $file): array
-    {
-        $contents = @json_decode(file_get_contents($file), true);
-
-        if (false === $contents) {
-            throw new UnexpectedValueException(
-                sprintf(
-                    'Could not decode the JSON file "%s": %s',
-                    $file,
-                    json_last_error_msg()
-                )
-            );
-        }
-
-        return $contents;
+        return (new Json())->decodeFile($composerLock, true);
     }
 }

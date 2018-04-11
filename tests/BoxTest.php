@@ -90,13 +90,29 @@ class BoxTest extends FileSystemTestCase
 
     public function test_it_can_add_a_file_to_the_phar(): void
     {
-$this->fail();
         $file = 'foo';
         $contents = 'test';
 
         file_put_contents($file, $contents);
 
         $this->box->addFile($file);
+
+        $expectedContents = $contents;
+        $expectedPharPath = 'phar://test.phar/'.$file;
+
+        $this->assertFileExists($expectedPharPath);
+
+        $actualContents = file_get_contents($expectedPharPath);
+
+        $this->assertSame($expectedContents, $actualContents);
+    }
+
+    public function test_it_can_add_a_non_exitent_file_with_contents_to_the_phar(): void
+    {
+        $file = 'foo';
+        $contents = 'test';
+
+        $this->box->addFile($file, $contents);
 
         $expectedContents = $contents;
         $expectedPharPath = 'phar://test.phar/'.$file;
@@ -1012,6 +1028,7 @@ PHP
         $this->box->getPhar()->setStub(
             StubGenerator::create()
                 ->index('main.php')
+                ->checkRequirements(false)
                 ->generate()
         );
     }
