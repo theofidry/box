@@ -16,12 +16,14 @@ use function array_diff;
 use function array_diff_key;
 use function array_intersect_key;
 use function array_key_exists;
+use function array_map;
 use function file_exists;
 use function json_last_error_msg;
 use function phpversion;
 use function sprintf;
 use function str_replace;
 use function substr;
+use Symfony\Requirements\Requirement;
 use Symfony\Requirements\RequirementCollection;
 use UnexpectedValueException;
 use function version_compare;
@@ -40,9 +42,9 @@ final class AppRequirementsFactory
      *
      * @throws UnexpectedValueException When the file could not be found or decoded
      *
-     * @return RequirementCollection Configured requirements
+     * @return array Configured requirements
      */
-    public static function create(string $composerJson): RequirementCollection
+    public static function create(string $composerJson): array
     {
         $requirements = new RequirementCollection();
 
@@ -51,7 +53,7 @@ final class AppRequirementsFactory
         self::configurePhpVersionRequirements($requirements, $composerLockContents);
         self::configureExtensionRequirements($requirements, $composerLockContents);
 
-        return $requirements;
+        return self::exportRequirementsIntoConfig($requirements);
     }
 
     private static function configurePhpVersionRequirements(RequirementCollection $requirements, array $composerLockContents): void
@@ -141,6 +143,21 @@ final class AppRequirementsFactory
                 );
             }
         }
+    }
+
+    private static function exportRequirementsIntoConfig(RequirementCollection $requirements): array
+    {
+        return array_map(
+            function (Requirement $requirement): array {
+                return [
+                    $requirement->isFulfilled(),
+                    $requirement->getTestMessage(),
+                    $requirement->getHelpHtml(),
+                    $requirement->getHelpText(),
+                ];
+            },
+            $requirements->getRequirements()
+        );
     }
 
     /**

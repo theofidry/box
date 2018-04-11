@@ -1,6 +1,6 @@
 - [x] Add requirements checker script to the stub
 - [x] Make it work
-- [ ] Make it work in scoped PHAR
+- [x] Make it work in scoped PHAR
 - Make the requirements check script configurable
   - [ ] Expose in the config
   - [ ] Default to true

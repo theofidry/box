@@ -23,6 +23,7 @@ use function sprintf;
 use function str_replace;
 use Symfony\Requirements\Requirement;
 use Symfony\Requirements\RequirementCollection;
+use function var_export;
 
 
 /**
@@ -59,7 +60,15 @@ if (false === $checkPassed) {
 
 PHP;
 
+    private const REQUIREMENTS_CONFIG_TEMPLATE = <<<'PHP'
+<?php
+
+return __CONFIG__;
+PHP;
+
+
     private const CLASSED_USED = [
+        Checker::class,
         RequirementCollection::class,
         Requirement::class,
     ];
@@ -71,7 +80,7 @@ PHP;
     public static function dump(string $composerJson): array
     {
         $filesWithContents = [
-            self::dumpChecker($composerJson),
+            self::dumpRequirementsConfig($composerJson),
         ];
 
         foreach (self::CLASSED_USED as $class) {
@@ -86,24 +95,21 @@ PHP;
         return $filesWithContents;
     }
 
-    public static function dumpChecker(string $composerJson): array
+    private static function dumpRequirementsConfig(string $composerJson): array
     {
-        $requirements = self::dumpRequirements($composerJson);
-
-        $file = self::retrieveFileShortName(Checker::class);
-        $contents = self::retrieveClassFileContents(Checker::class);
+        $config = AppRequirementsFactory::create($composerJson);
 
         return [
-            $file,
+            Checker::REQUIREMENTS_CONFIG,
             str_replace(
-                '__REQUIREMENTS_SERIALIZED_VALUE__',
-                $requirements,
-                $contents
-            )
+                '__CONFIG__',
+                var_export($config, true),
+                self::REQUIREMENTS_CONFIG_TEMPLATE
+            ),
         ];
     }
 
-    public static function dumpCheckScript(string ...$files): array
+    private static function dumpCheckScript(string ...$files): array
     {
         $autoloads = array_map(
             function (string $file): string {
@@ -125,13 +131,6 @@ PHP;
                 self::REQUIREMENTS_CHECKER_TEMPLATE
             )
         ];
-    }
-
-    private static function dumpRequirements(string $composerJson): string
-    {
-        $requirements = AppRequirementsFactory::create($composerJson);
-
-        return serialize($requirements);
     }
 
     private static function retrieveClassFileContents(string $class): string

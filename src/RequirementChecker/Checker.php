@@ -12,6 +12,7 @@
 
 namespace KevinGH\Box\RequirementChecker;
 
+use function file_exists;
 use LogicException;
 use Symfony\Requirements\Requirement;
 use const PHP_EOL;
@@ -35,27 +36,17 @@ use function wordwrap;
  */
 final class Checker
 {
-    /**
-     * @var RequirementCollection
-     */
-    private static $requirements = '__REQUIREMENTS_SERIALIZED_VALUE__';
+    public const REQUIREMENTS_CONFIG = '.requirements.php';
 
     public static function checkRequirements(): bool
     {
-        if ('__REQUIREMENTS_SERI'.'ALIZED_VALUE__' === self::$requirements) {
-            throw new LogicException('The checker should be dumped first.');
-        }
+        $config = require self::REQUIREMENTS_CONFIG;
 
-        $requirements = unserialize(
-            self::$requirements,
-            [
-                'allowed_classes' => [
-                    'ArrayIterator',
-                    'Symfony\Requirements\Requirement',
-                    'Symfony\Requirements\RequirementCollection',
-                ]
-            ]
-        );
+        $requirements = new RequirementCollection();
+
+        foreach ($config as $constraint) {
+            $requirements->addRequirement(...$constraint);
+        }
 
         [$verbose, $debug] = self::retrieveConfig();
 
