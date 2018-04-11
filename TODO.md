@@ -1,0 +1,8 @@
+- [x] Add requirements checker script to the stub
+- Make the requirements check script configurable
+  - [ ] Expose in the config
+  - [ ] Default to true
+  - [ ] Document
+- [ ] Make PHP 5.3 compatible
+- [ ] Lazily evaluate conditions
+- [ ] Heavily test it
