@@ -2,29 +2,30 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the box project.
+ *
+ * (c) Kevin Herrera <kevin@herrera.io>
+ *     Théo Fidry <theo.fidry@gmail.com>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace KevinGH\Box\RequirementChecker;
+
+use ReflectionClass;
+use Symfony\Requirements\Requirement;
+use Symfony\Requirements\RequirementCollection;
+use const PHP_EOL;
 use function array_column;
 use function array_map;
-use function basename;
-use function dirname;
-use function explode;
 use function implode;
 use function KevinGH\Box\FileSystem\file_contents;
 use function KevinGH\Box\FileSystem\filename;
-use function KevinGH\Box\FileSystem\make_path_relative;
-use const PHP_EOL;
-use function preg_match;
-use function preg_quote;
-use function preg_replace;
-use Reflection;
-use ReflectionClass;
-use function serialize;
 use function sprintf;
 use function str_replace;
-use Symfony\Requirements\Requirement;
-use Symfony\Requirements\RequirementCollection;
 use function var_export;
-
 
 /**
  * @private
@@ -66,13 +67,11 @@ PHP;
 return __CONFIG__;
 PHP;
 
-
     private const CLASSED_USED = [
         Checker::class,
         RequirementCollection::class,
         Requirement::class,
     ];
-
 
     /**
      * @return string[][]
@@ -129,7 +128,7 @@ PHP;
                 '//__AUTOLOAD__',
                 $autoloadStmt,
                 self::REQUIREMENTS_CHECKER_TEMPLATE
-            )
+            ),
         ];
     }
 

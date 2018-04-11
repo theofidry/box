@@ -1,33 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of the humbug/php-scoper package.
+ * This file is part of the box project.
  *
- * Copyright (c) 2017 Théo FIDRY <theo.fidry@gmail.com>,
- *                    Pádraic Brady <padraic.brady@gmail.com>
+ * (c) Kevin Herrera <kevin@herrera.io>
+ *     Théo Fidry <theo.fidry@gmail.com>
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
  */
 
 namespace KevinGH\Box\RequirementChecker;
 
-use function array_diff;
-use function array_diff_key;
-use function array_intersect_key;
-use function array_key_exists;
-use function array_map;
 use Assert\Assertion;
-use function file_exists;
-use function json_last_error_msg;
 use KevinGH\Box\Json\Json;
-use function phpversion;
-use function sprintf;
-use function str_replace;
-use function substr;
 use Symfony\Requirements\Requirement;
 use Symfony\Requirements\RequirementCollection;
 use UnexpectedValueException;
+use function array_diff_key;
+use function array_key_exists;
+use function array_map;
+use function sprintf;
+use function str_replace;
+use function substr;
 use function version_compare;
 
 /**
@@ -60,13 +57,13 @@ final class AppRequirementsFactory
 
     private static function configurePhpVersionRequirements(RequirementCollection $requirements, array $composerLockContents): void
     {
-        $installedPhpVersion = phpversion();
+        $installedPhpVersion = PHP_VERSION;
 
         if (isset($composerLockContents['platform']['php'])) {
             $requiredPhpVersion = $composerLockContents['platform']['php'];
 
             $requirements->addRequirement(
-                version_compare(phpversion(), $requiredPhpVersion, '>='),
+                version_compare(PHP_VERSION, $requiredPhpVersion, '>='),
                 sprintf(
                     'The application requires the version "%s" or greater. Got "%s"',
                     $requiredPhpVersion,
@@ -92,7 +89,7 @@ final class AppRequirementsFactory
             }
 
             $requirements->addRequirement(
-                version_compare(phpversion(), $requiredPhpVersion, '>='),
+                version_compare(PHP_VERSION, $requiredPhpVersion, '>='),
                 sprintf(
                     'The package "%s" requires the version "%s" or greater. Got "%s"',
                     $packageInfo['name'],
