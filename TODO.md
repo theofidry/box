@@ -2,7 +2,7 @@
 - [x] Make it work
 - [x] Make it work in scoped PHAR
 - Make the requirements check script configurable
-  - [ ] Expose in the config
+  - [x] Expose in the config
   - [ ] Default to true
   - [ ] Document
 - [ ] Make PHP 5.3 compatible

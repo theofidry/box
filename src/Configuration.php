@@ -99,6 +99,7 @@ BANNER;
     private $stubPath;
     private $isInterceptFileFuncs;
     private $isStubGenerated;
+    private $checkRequirements;
 
     /**
      * @param null|string   $file
@@ -124,8 +125,8 @@ BANNER;
      * @param null|string   $stubBannerContents    The stub banner comment
      * @param null|string   $stubBannerPath        The path to the stub banner comment file
      * @param null|string   $stubPath              The PHAR stub file path
-     * @param bool          $isInterceptFileFuncs  wether or not Phar::interceptFileFuncs() should be used
-     * @param bool          $isStubGenerated       Wether or not if the PHAR stub should be generated
+     * @param bool          $isInterceptFileFuncs  Whether or not Phar::interceptFileFuncs() should be used
+     * @param bool          $isStubGenerated       Whether or not if the PHAR stub should be generated
      */
     private function __construct(
         ?string $file,
@@ -152,7 +153,8 @@ BANNER;
         ?string $stubBannerPath,
         ?string $stubPath,
         bool $isInterceptFileFuncs,
-        bool $isStubGenerated
+        bool $isStubGenerated,
+        $checkRequirements
     ) {
         Assertion::nullOrInArray(
             $compressionAlgorithm,
@@ -188,6 +190,7 @@ BANNER;
         $this->stubPath = $stubPath;
         $this->isInterceptFileFuncs = $isInterceptFileFuncs;
         $this->isStubGenerated = $isStubGenerated;
+        $this->checkRequirements = $checkRequirements;
     }
 
     public static function create(?string $file, stdClass $raw): self
@@ -257,6 +260,8 @@ BANNER;
         $isInterceptFileFuncs = self::retrieveIsInterceptFileFuncs($raw);
         $isStubGenerated = self::retrieveIsStubGenerated($raw, $stubPath);
 
+        $checkRequirements = self::retrieveCheckRequirements($raw, $isStubGenerated);
+
         return new self(
             $file,
             $alias,
@@ -282,7 +287,8 @@ BANNER;
             $stubBannerPath,
             $stubPath,
             $isInterceptFileFuncs,
-            $isStubGenerated
+            $isStubGenerated,
+            $checkRequirements
         );
     }
 
@@ -347,7 +353,7 @@ BANNER;
 
     public function checkRequirements(): bool
     {
-        return true;
+        return $this->checkRequirements;
     }
 
     public function getTmpOutputPath(): string
@@ -1374,6 +1380,13 @@ BANNER;
     private static function retrieveIsStubGenerated(stdClass $raw, ?string $stubPath): bool
     {
         return null === $stubPath && (false === isset($raw->stub) || false !== $raw->stub);
+    }
+
+    private static function retrieveCheckRequirements(stdClass $raw, bool $generateStub): bool
+    {
+        // TODO: emit warning when stub is not generated and check requirements is explicitly set to true
+
+        return $raw->{'check-requirements'} ?? true;
     }
 
     private static function retrievePhpScoperConfig(stdClass $raw, string $basePath): PhpScoperConfiguration
