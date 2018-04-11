@@ -3,8 +3,8 @@
 - [x] Make it work in scoped PHAR
 - Make the requirements check script configurable
   - [x] Expose in the config
-  - [ ] Default to true
-  - [ ] Document
+  - [x] Default to true
+  - [x] Document
 - [ ] Make PHP 5.3 compatible
 - [ ] Lazily evaluate conditions
 - [ ] Heavily test it
