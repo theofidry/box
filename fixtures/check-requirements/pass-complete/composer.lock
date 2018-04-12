@@ -1,0 +1,40 @@
+{
+    "packages": [
+        {
+            "name": "package-with-polyfill",
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "ext-mbstring": "*",
+                "ext-json": "*"
+            }
+        },
+        {
+            "name": "polyfill",
+            "require": {
+                "php": ">=5.2"
+            },
+            "require-dev": {
+                "symfony/polyfill-mbstring": "*"
+            }
+        }
+    ],
+    "packages-dev": [
+        {
+            "name": "dev-package",
+            "require": {
+                "php": "^7.2",
+                "ext-gettext": "*"
+            },
+            "require-dev": {
+                "php": "^7.3",
+                "ext-interbase": "*"
+            }
+        }
+    ],
+    "platform": {
+        "php": "^7.1",
+        "ext-phar": "*"
+    }
+}
