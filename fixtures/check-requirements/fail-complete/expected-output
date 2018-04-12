@@ -1,0 +1,18 @@
+
+Box Requirements Checker
+========================
+
+> PHP is using the following php.ini file:
+  /Users/tfidry/.phpbrew/php/php-7.2.2/etc/php.ini
+
+> Checking Box requirements:
+  ✔ The application requires the version "^10" or greater.
+  ✔ The application requires the extension "phar".
+  ✔ The package "package-with-extensions" requires the extension "json".
+  ✘ The package "package-with-extensions" requires the extension "ldap". Enable it or install a polyfill.
+  ✘ The package "package-with-extensions" requires the extension "random". Enable it or install a polyfill.
+  
+
+                                                                      
+ [ERROR] Your system is not ready to run the application              
+                                                                      

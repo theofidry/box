@@ -16,8 +16,6 @@ namespace KevinGH\Box\RequirementChecker;
 
 use Assert\Assertion;
 use KevinGH\Box\Json\Json;
-use Symfony\Requirements\Requirement;
-use Symfony\Requirements\RequirementCollection;
 use UnexpectedValueException;
 use function array_diff_key;
 use function array_key_exists;
@@ -25,6 +23,7 @@ use function array_map;
 use function sprintf;
 use function str_replace;
 use function substr;
+use function var_export;
 use function version_compare;
 
 /**
@@ -45,7 +44,7 @@ final class AppRequirementsFactory
      */
     public static function create(string $composerJson): array
     {
-        $requirements = new RequirementCollection();
+        $requirements = new LazyRequirementCollection();
 
         $composerLockContents = self::retrieveComposerLockContents($composerJson);
 
@@ -55,15 +54,15 @@ final class AppRequirementsFactory
         return self::exportRequirementsIntoConfig($requirements);
     }
 
-    private static function configurePhpVersionRequirements(RequirementCollection $requirements, array $composerLockContents): void
+    private static function configurePhpVersionRequirements(LazyRequirementCollection $requirements, array $composerLockContents): void
     {
         $installedPhpVersion = PHP_VERSION;
 
         if (isset($composerLockContents['platform']['php'])) {
             $requiredPhpVersion = $composerLockContents['platform']['php'];
 
-            $requirements->addRequirement(
-                version_compare(PHP_VERSION, $requiredPhpVersion, '>='),
+            $requirements->addLazyRequirement(
+                "return version_compare(PHP_VERSION, '$requiredPhpVersion', '>=');",
                 sprintf(
                     'The application requires the version "%s" or greater. Got "%s"',
                     $requiredPhpVersion,
@@ -88,8 +87,8 @@ final class AppRequirementsFactory
                 continue;
             }
 
-            $requirements->addRequirement(
-                version_compare(PHP_VERSION, $requiredPhpVersion, '>='),
+            $requirements->addLazyRequirement(
+                "return version_compare(PHP_VERSION, '$requiredPhpVersion', '>=');",
                 sprintf(
                     'The package "%s" requires the version "%s" or greater. Got "%s"',
                     $packageInfo['name'],
@@ -106,7 +105,7 @@ final class AppRequirementsFactory
         }
     }
 
-    private static function configureExtensionRequirements(RequirementCollection $requirements, array $composerLockContents): void
+    private static function configureExtensionRequirements(LazyRequirementCollection $requirements, array $composerLockContents): void
     {
         $extensionRequirements = self::collectExtensionRequirements($composerLockContents);
 
@@ -134,8 +133,8 @@ final class AppRequirementsFactory
                     );
                 }
 
-                $requirements->addRequirement(
-                    extension_loaded($extension),
+                $requirements->addLazyRequirement(
+                    "return extension_loaded('$extension');",
                     $message,
                     '',
                     $helpMessage
@@ -144,12 +143,12 @@ final class AppRequirementsFactory
         }
     }
 
-    private static function exportRequirementsIntoConfig(RequirementCollection $requirements): array
+    private static function exportRequirementsIntoConfig(LazyRequirementCollection $requirements): array
     {
         return array_map(
-            function (Requirement $requirement): array {
+            function (LazyRequirement $requirement): array {
                 return [
-                    $requirement->isFulfilled(),
+                    $requirement->getIsFullfilledChecker(),
                     $requirement->getTestMessage(),
                     $requirement->getHelpHtml(),
                     $requirement->getHelpText(),
@@ -187,7 +186,7 @@ final class AppRequirementsFactory
         foreach ($packages as $packageInfo) {
             $packageRequire = $packageInfo['require'] ?? [];
 
-            if (preg_match('/symfony\/polyfill-(?<extension>.+)/', $packageInfo['name'], $matches)) {
+            if (1 === preg_match('/symfony\/polyfill-(?<extension>.+)/', $packageInfo['name'], $matches)) {
                 $extension = $matches['extension'];
 
                 if ('php' !== substr($extension, 0, 3)) {
@@ -196,7 +195,7 @@ final class AppRequirementsFactory
             }
 
             foreach ($packageRequire as $package => $constraint) {
-                if (preg_match('/^ext-(?<extension>.+)$/', $package, $matches)) {
+                if (1 === preg_match('/^ext-(?<extension>.+)$/', $package, $matches)) {
                     $extension = $matches['extension'];
 
                     if (false === array_key_exists($extension, $requirements)) {

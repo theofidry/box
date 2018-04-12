@@ -13,7 +13,6 @@
 namespace KevinGH\Box\RequirementChecker;
 
 use Symfony\Requirements\Requirement;
-use Symfony\Requirements\RequirementCollection;
 
 /**
  * The code in this file must be PHP 5.3+ compatible as is used to know if the application can be run.
@@ -32,10 +31,10 @@ final class Checker
     {
         $config = require self::REQUIREMENTS_CONFIG;
 
-        $requirements = new RequirementCollection();
+        $requirements = new LazyRequirementCollection();
 
         foreach ($config as $constraint) {
-            call_user_func(array($requirements, 'addRequirement'), $constraint);
+            call_user_func_array(array($requirements, 'addLazyRequirement'), $constraint);
         }
 
         list($verbose, $debug) = self::retrieveConfig();
@@ -52,18 +51,18 @@ final class Checker
     }
 
     /**
-     * @param RequirementCollection $requirements
+     * @param LazyRequirementCollection $requirements
      * @param bool                  $verbose
      * @param bool                  $debug
      *
      * @return bool
      */
-    private static function check(RequirementCollection $requirements, $verbose, $debug)
+    private static function check(LazyRequirementCollection $requirements, $verbose, $debug)
     {
         $lineSize = 70;
         $iniPath = $requirements->getPhpIniPath();
 
-        $checkPassed = self::evaluateRequirements($requirements, $lineSize);
+        $checkPassed = self::evaluateRequirements($requirements);
 
         if (false === $checkPassed) {
             // Override the default verbosity to output errors regardless of the verbosity asked by the user
@@ -135,12 +134,9 @@ final class Checker
     }
 
     /**
-     * @param RequirementCollection $requirements
-     * @param int                   $lineSize
-     *
      * @return bool
      */
-    private static function evaluateRequirements(RequirementCollection $requirements, $lineSize)
+    private static function evaluateRequirements(LazyRequirementCollection $requirements)
     {
         return array_reduce(
             $requirements->getRequirements(),
@@ -150,8 +146,8 @@ final class Checker
              *
              * @return bool
              */
-            function ($checkPassed, Requirement $requirement) use ($lineSize) {
-                return $checkPassed && null === Checker::getErrorMessage($requirement, $lineSize);
+            function ($checkPassed, Requirement $requirement) {
+                return $checkPassed && $requirement->isFulfilled();
             },
             true
         );

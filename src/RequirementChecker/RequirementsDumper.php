@@ -15,8 +15,6 @@ declare(strict_types=1);
 namespace KevinGH\Box\RequirementChecker;
 
 use ReflectionClass;
-use Symfony\Requirements\Requirement;
-use Symfony\Requirements\RequirementCollection;
 use const PHP_EOL;
 use function array_column;
 use function array_map;
@@ -69,8 +67,10 @@ PHP;
 
     private const CLASSED_USED = [
         Checker::class,
-        RequirementCollection::class,
-        Requirement::class,
+        \Symfony\Requirements\Requirement::class,
+        \Symfony\Requirements\RequirementCollection::class,
+        LazyRequirement::class,
+        LazyRequirementCollection::class,
     ];
 
     /**

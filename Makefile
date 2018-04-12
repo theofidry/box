@@ -76,18 +76,23 @@ e2e: box_dev.json
 .PHONY: e2e_check_requirements
 e2e_check_requirements:	## Runs the end-to-end tests for the check requirements feature
 e2e_check_requirements: bin/box src vendor
-	docker build -t box_php53 -f "$$PWD/.docker/php53" .
-	
+#	docker build -t box_php53 -f "$$PWD/.docker/php53" .
+
 	bin/box compile --working-dir fixtures/check-requirements/pass-no-config/
-	docker run -it --rm -v "$$PWD":/opt/box -w /opt/box box_php53 php fixtures/check-requirements/pass-no-config/default.phar > fixtures/check-requirements/pass-no-config/actual-output
+	docker run -it --rm -v "$$PWD":/opt/box -w /opt/box box_php53 php fixtures/check-requirements/pass-no-config/default.phar || exit 1
+
+	rm fixtures/check-requirements/pass-no-config/actual-output || true
+	php fixtures/check-requirements/pass-no-config/default.phar > fixtures/check-requirements/pass-no-config/actual-output
 	diff fixtures/check-requirements/pass-no-config/expected-output fixtures/check-requirements/pass-no-config/actual-output
-	
+
 	bin/box compile --working-dir fixtures/check-requirements/pass-complete/
-	docker run -it --rm -v "$$PWD":/opt/box -w /opt/box box_php53 php fixtures/check-requirements/pass-complete/default.phar > fixtures/check-requirements/pass-complete/actual-output
+	rm fixtures/check-requirements/pass-complete/actual-output || true
+	php fixtures/check-requirements/pass-complete/default.phar > fixtures/check-requirements/pass-complete/actual-output
 	diff fixtures/check-requirements/pass-complete/expected-output fixtures/check-requirements/pass-complete/actual-output
-		
+
 	bin/box compile --working-dir fixtures/check-requirements/fail-complete/
-	docker run -it --rm -v "$$PWD":/opt/box -w /opt/box box_php53 php fixtures/check-requirements/fail-complete/default.phar > fixtures/check-requirements/fail-complete/actual-output
+	rm fixtures/check-requirements/fail-complete/actual-output || true
+	php fixtures/check-requirements/fail-complete/default.phar > fixtures/check-requirements/fail-complete/actual-output || true
 	diff fixtures/check-requirements/fail-complete/expected-output fixtures/check-requirements/fail-complete/actual-output
 
 

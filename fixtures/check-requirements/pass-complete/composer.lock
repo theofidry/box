@@ -3,20 +3,17 @@
         {
             "name": "package-with-polyfill",
             "require": {
-                "php": ">=5.3"
+                "php": ">=5.3",
+                "ext-random": "*"
             },
             "require-dev": {
-                "ext-mbstring": "*",
                 "ext-json": "*"
             }
         },
         {
-            "name": "polyfill",
+            "name": "symfony/polyfill-random",
             "require": {
                 "php": ">=5.2"
-            },
-            "require-dev": {
-                "symfony/polyfill-mbstring": "*"
             }
         }
     ],
@@ -34,7 +31,7 @@
         }
     ],
     "platform": {
-        "php": "^7.1",
+        "php": "^5.3",
         "ext-phar": "*"
     }
 }
