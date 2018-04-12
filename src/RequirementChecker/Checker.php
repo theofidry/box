@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /*
  * This file is part of the box project.
  *
@@ -16,17 +14,6 @@ namespace KevinGH\Box\RequirementChecker;
 
 use Symfony\Requirements\Requirement;
 use Symfony\Requirements\RequirementCollection;
-use const PHP_EOL;
-use const STR_PAD_RIGHT;
-use function array_reduce;
-use function function_exists;
-use function getenv;
-use function posix_isatty;
-use function str_pad;
-use function str_repeat;
-use function strlen;
-use function trim;
-use function wordwrap;
 
 /**
  * The code in this file must be PHP 5.3+ compatible as is used to know if the application can be run.
@@ -35,19 +22,23 @@ use function wordwrap;
  */
 final class Checker
 {
-    public const REQUIREMENTS_CONFIG = '.requirements.php';
+    /** @private */
+    const REQUIREMENTS_CONFIG = '.requirements.php';
 
-    public static function checkRequirements(): bool
+    /**
+     * @return bool
+     */
+    public static function checkRequirements()
     {
         $config = require self::REQUIREMENTS_CONFIG;
 
         $requirements = new RequirementCollection();
 
         foreach ($config as $constraint) {
-            $requirements->addRequirement(...$constraint);
+            call_user_func(array($requirements, 'addRequirement'), $constraint);
         }
 
-        [$verbose, $debug] = self::retrieveConfig();
+        list($verbose, $debug) = self::retrieveConfig();
 
         return self::check($requirements, $verbose, $debug);
     }
@@ -57,68 +48,7 @@ final class Checker
      */
     private static function retrieveConfig()
     {
-        return [true, true];
-        if (true === $input->hasParameterOption(['--ansi'], true)) {
-            $output->setDecorated(true);
-        } elseif (true === $input->hasParameterOption(['--no-ansi'], true)) {
-            $output->setDecorated(false);
-        }
-
-        if (true === $input->hasParameterOption(['--no-interaction', '-n'], true)) {
-            $input->setInteractive(false);
-        } elseif (function_exists('posix_isatty')) {
-            $inputStream = null;
-
-            if ($input instanceof StreamableInputInterface) {
-                $inputStream = $input->getStream();
-            }
-
-            if (!@posix_isatty($inputStream) && false === getenv('SHELL_INTERACTIVE')) {
-                $input->setInteractive(false);
-            }
-        }
-
-        switch ($shellVerbosity = (int) getenv('SHELL_VERBOSITY')) {
-            case -1:
-                $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-                break;
-            case 1:
-                $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
-                break;
-            case 2:
-                $output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
-                break;
-            case 3:
-                $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
-                break;
-            default:
-                $shellVerbosity = 0;
-                break;
-        }
-
-        if (true === $input->hasParameterOption(['--quiet', '-q'], true)) {
-            $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-            $shellVerbosity = -1;
-        } else {
-            if ($input->hasParameterOption('-vvv', true) || $input->hasParameterOption('--verbose=3', true) || 3 === $input->getParameterOption('--verbose', false, true)) {
-                $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
-                $shellVerbosity = 3;
-            } elseif ($input->hasParameterOption('-vv', true) || $input->hasParameterOption('--verbose=2', true) || 2 === $input->getParameterOption('--verbose', false, true)) {
-                $output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
-                $shellVerbosity = 2;
-            } elseif ($input->hasParameterOption('-v', true) || $input->hasParameterOption('--verbose=1', true) || $input->hasParameterOption('--verbose', true) || $input->getParameterOption('--verbose', false, true)) {
-                $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
-                $shellVerbosity = 1;
-            }
-        }
-
-        if (-1 === $shellVerbosity) {
-            $input->setInteractive(false);
-        }
-
-        putenv('SHELL_VERBOSITY='.$shellVerbosity);
-        $_ENV['SHELL_VERBOSITY'] = $shellVerbosity;
-        $_SERVER['SHELL_VERBOSITY'] = $shellVerbosity;
+        return array(true, true);
     }
 
     /**
@@ -142,7 +72,7 @@ final class Checker
 
         self::echoTitle('Box Requirements Checker', 'title', $verbose);
 
-        self::print('> PHP is using the following php.ini file:'.PHP_EOL, $verbose);
+        self::_print('> PHP is using the following php.ini file:'.PHP_EOL, $verbose);
 
         if ($iniPath) {
             self::echo_style('green', '  '.$iniPath, $verbose);
@@ -150,10 +80,10 @@ final class Checker
             self::echo_style('yellow', '  WARNING: No configuration file (php.ini) used by PHP!', $verbose);
         }
 
-        self::print(PHP_EOL.PHP_EOL, $verbose);
-        self::print('> Checking Box requirements:'.PHP_EOL.'  ', $verbose);
+        self::_print(PHP_EOL.PHP_EOL, $verbose);
+        self::_print('> Checking Box requirements:'.PHP_EOL.'  ', $verbose);
 
-        $messages = [];
+        $messages = array();
 
         foreach ($requirements->getRequirements() as $requirement) {
             if ($helpText = self::getErrorMessage($requirement, $lineSize)) {
@@ -188,7 +118,7 @@ final class Checker
                 self::echoTitle('Fix the following mandatory requirements', 'red', $verbose);
 
                 foreach ($messages['error'] as $helpText) {
-                    self::print(' * '.$helpText.PHP_EOL, $verbose);
+                    self::_print(' * '.$helpText.PHP_EOL, $verbose);
                 }
             }
         }
@@ -197,7 +127,7 @@ final class Checker
             self::echoTitle('Optional recommendations to improve your setup', 'yellow', $verbose);
 
             foreach ($messages['warning'] as $helpText) {
-                self::print(' * '.$helpText.PHP_EOL, $verbose);
+                self::_print(' * '.$helpText.PHP_EOL, $verbose);
             }
         }
 
@@ -221,13 +151,13 @@ final class Checker
              * @return bool
              */
             function ($checkPassed, Requirement $requirement) use ($lineSize) {
-                return $checkPassed && null === self::getErrorMessage($requirement, $lineSize);
+                return $checkPassed && null === Checker::getErrorMessage($requirement, $lineSize);
             },
-            false
+            true
         );
     }
 
-    private static function print($message, $verbose): void
+    private static function _print($message, $verbose)
     {
         if (false === $verbose) {
             return;
@@ -258,7 +188,7 @@ final class Checker
      * @param string $style
      * @param bool   $verbose
      */
-    private static function echoTitle($title, $style, $verbose): void
+    private static function echoTitle($title, $style, $verbose)
     {
         if (false === $verbose) {
             return;
@@ -275,21 +205,21 @@ final class Checker
      * @param string $message
      * @param bool   $verbose
      */
-    private static function echo_style($style, $message, $verbose): void
+    private static function echo_style($style, $message, $verbose)
     {
         if (false === $verbose) {
             return;
         }
 
         // ANSI color codes
-        $styles = [
+        $styles = array(
             'reset' => "\033[0m",
             'red' => "\033[31m",
             'green' => "\033[32m",
             'yellow' => "\033[33m",
             'error' => "\033[37;41m",
             'success' => "\033[30;42m",
-        ];
+        );
 
         $styles['title'] = $styles['yellow'];
 
@@ -305,7 +235,7 @@ final class Checker
      * @param string $message
      * @param bool   $verbose
      */
-    private static function echo_block($lineSize, $style, $title, $message, $verbose): void
+    private static function echo_block($lineSize, $style, $title, $message, $verbose)
     {
         if (false === $verbose) {
             return;
@@ -333,7 +263,7 @@ final class Checker
         static $support;
 
         if (null === $support) {
-            if (DIRECTORY_SEPARATOR == '\\') {
+            if (DIRECTORY_SEPARATOR === '\\') {
                 $support = false !== getenv('ANSICON') || 'ON' === getenv('ConEmuANSI');
             } else {
                 $support = function_exists('posix_isatty') && @posix_isatty(STDOUT);

@@ -1,6 +1,7 @@
 .DEFAULT_GOAL := help
 
 
+.PHONY: help
 help:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
@@ -9,15 +10,20 @@ help:
 ## Commands
 ##---------------------------------------------------------------------------
 
-clean:		## Clean all created artifacts
+.PHONY: clean
+clean:			## Clean all created artifacts
 clean:
 	git clean --exclude=.idea/ -ffdx
 
-cs:		## Fix CS
+
+.PHONY: cs
+cs:			## Fix CS
 cs: vendor-bin/php-cs-fixer/vendor/bin/php-cs-fixer
 	php -d zend.enable_gc=0 vendor-bin/php-cs-fixer/vendor/bin/php-cs-fixer fix
 
-compile:	## Compile the application into the PHAR
+
+.PHONY: compile
+compile:		## Compile the application into the PHAR
 compile:
 	# Cleanup existing artefacts
 	rm -f bin/box.phar
@@ -30,22 +36,31 @@ compile:
 ## Tests
 ##---------------------------------------------------------------------------
 
-test:		## Run all the tests
-test: tu e2e
+.PHONY: test
+test:			## Run all the tests
+test: tu e2e e2e_check_requirements
 
-tu:		## Run the unit tests
+
+.PHONY: tu
+tu:			## Run the unit tests
 tu: vendor/bin/phpunit fixtures/default_stub.php
 	php -d phar.readonly=0 -d zend.enable_gc=0 bin/phpunit
 
-tc:		## Run the unit tests with code coverage
+
+.PHONY: tc
+tc:			## Run the unit tests with code coverage
 tc: vendor/bin/phpunit
 	phpdbg -qrr -d phar.readonly=0 -d zend.enable_gc=0 bin/phpunit --coverage-html=dist/coverage --coverage-text
 
-tm:		## Run Infection
+
+.PHONY: tm
+tm:			## Run Infection
 tm:	vendor/bin/phpunit fixtures/default_stub.php
 	php -d phar.readonly=0 -d zend.enable_gc=0 bin/infection
 
-e2e:		## Run the end-to-end tests
+
+.PHONY: e2e
+e2e:			## Run the end-to-end tests
 e2e: box_dev.json
 	$(MAKE) compile args='--config=box_dev.json'
 
@@ -57,7 +72,20 @@ e2e: box_dev.json
 
 	rm box.phar bin/box.phar
 
-blackfire:	## Profiles the compile step
+
+.PHONY: e2e_check_requirements
+e2e_check_requirements:	## Runs the end-to-end tests for the check requirements feature
+e2e_check_requirements: bin/box src vendor
+	docker build -t box_php53 -f "$$PWD/.docker/php53" .
+	bin/box compile --working-dir fixtures/check-requirements/pass/
+
+	docker run -it --rm -v "$$PWD":/opt/box -w /opt/box box_php53 php fixtures/check-requirements/pass/default.phar > fixtures/check-requirements/pass/actual-output
+
+	diff fixtures/check-requirements/pass/expected-output fixtures/check-requirements/pass/actual-output
+
+
+.PHONY: blackfire
+blackfire:		## Profiles the compile step
 blackfire: bin/box src vendor
 	# Cleanup existing artefacts
 	rm -f bin/box.phar

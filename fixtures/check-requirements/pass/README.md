@@ -1,0 +1,1 @@
+No config: the checks should pass
