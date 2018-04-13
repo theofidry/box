@@ -14,6 +14,11 @@ namespace KevinGH\Box\RequirementChecker;
 
 use Symfony\Requirements\Requirement as SymfonyRequirement;
 
+/**
+ * The code in this file must be PHP 5.3+ compatible as is used to know if the application can be run.
+ *
+ * @private
+ */
 final class LazyRequirement extends SymfonyRequirement
 {
     private $checkIsFulfilled;
