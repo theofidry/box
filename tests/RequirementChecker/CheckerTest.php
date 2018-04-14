@@ -69,6 +69,7 @@ Box Requirements Checker
  [OK] Your system is ready to run the application.
 
 
+
 EOF
             ];
         })();
@@ -90,6 +91,7 @@ Box Requirements Checker
 
 
  [OK] Your system is ready to run the application.
+
 
 
 EOF
@@ -141,6 +143,7 @@ Box Requirements Checker
  [OK] Your system is ready to run the application.
 
 
+
 EOF
             ];
         })();
@@ -176,6 +179,7 @@ Box Requirements Checker
 
 
  [OK] Your system is ready to run the application.
+
 
 
 EOF
