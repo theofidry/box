@@ -3,12 +3,12 @@ Box Requirements Checker
 ========================
 
 > PHP is using the following php.ini file:
-  /Users/tfidry/.phpbrew/php/php-7.2.2/etc/php.ini
+  /Users/tfidry/.phpbrew/php/php-7.1.10/etc/php.ini
 
-> Checking Box requirements:
-  
+> No requirements found.
 
-                                                                      
- [OK] Your system is ready to run the application.                    
-                                                                      
+                                                                                                                                                                                                            
+ [OK] Your system is ready to run the application.                                                                                                                                                          
+                                                                                                                                                                                                            
+
 Success!

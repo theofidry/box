@@ -12,8 +12,6 @@
 
 namespace KevinGH\Box\RequirementChecker;
 
-use const PHP_EOL;
-use function sprintf;
 use Symfony\Component\Console\Terminal;
 
 /**
@@ -44,7 +42,8 @@ final class Printer
     public function __construct($verbosity, $supportColors, $with = null)
     {
         if (null === $with) {
-            $with = (new Terminal())->getWidth();
+            $terminal = new Terminal();
+            $with = $terminal->getWidth();
         }
 
         $this->verbosity = $verbosity;
@@ -71,10 +70,10 @@ final class Printer
             $style = 'title';
         }
 
-        $this->println('', $verbosity, $style);
-        $this->println($title, $verbosity, $style);
-        $this->println(str_repeat('=', strlen($title)), $verbosity, $style);
-        $this->println('', $verbosity, $style);
+        $this->printvln('', $verbosity, $style);
+        $this->printvln($title, $verbosity, $style);
+        $this->printvln(str_repeat('=', strlen($title)), $verbosity, $style);
+        $this->printvln('', $verbosity, $style);
     }
 
     /**
@@ -107,10 +106,11 @@ final class Printer
             STR_PAD_RIGHT
         );
 
-        $this->println('', $verbosity);
-        $this->println(str_repeat(' ', $this->with), $verbosity, $style);
-        $this->println($message, $verbosity, $style);
-        $this->println(str_repeat(' ', $this->with), $verbosity, $style);
+        $this->printvln('', $verbosity);
+        $this->printvln(str_repeat(' ', $this->with), $verbosity, $style);
+        $this->printvln($message, $verbosity, $style);
+        $this->printv(str_repeat(' ', $this->with), $verbosity, $style);
+        $this->printvln('', $verbosity);
     }
 
     /**
@@ -118,10 +118,10 @@ final class Printer
      * @param int   $verbosity
      * @param string|null $style
      */
-    public function println($message, $verbosity, $style = null)
+    public function printvln($message, $verbosity, $style = null)
     {
-        $this->print($message, $verbosity, $style);
-        $this->print(PHP_EOL, $verbosity, $style);
+        $this->printv($message, $verbosity, $style);
+        $this->printv(PHP_EOL, $verbosity, $style);
     }
 
     /**
@@ -129,7 +129,7 @@ final class Printer
      * @param int   $verbosity
      * @param string|null $style
      */
-    public function print($message, $verbosity, $style = null)
+    public function printv($message, $verbosity, $style = null)
     {
         if ($verbosity > $this->verbosity) {
             return;
@@ -137,7 +137,7 @@ final class Printer
 
         $message = sprintf(
             '%s%s%s',
-            $this->supportColors ? $this->styles[$style] : '',
+            $this->supportColors && isset($this->styles[$style]) ? $this->styles[$style] : '',
             $message,
             $this->supportColors ? $this->styles['reset'] : ''
         );

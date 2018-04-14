@@ -53,7 +53,7 @@ class CheckerTest extends TestCase
         yield (function () {
             return [
                 new RequirementCollection(),
-                InputOutput::VERBOSITY_DEBUG,
+                IO::VERBOSITY_DEBUG,
                 true,
                 <<<'EOF'
 
@@ -76,7 +76,7 @@ EOF
         yield (function () {
             return [
                 new RequirementCollection(),
-                InputOutput::VERBOSITY_VERY_VERBOSE,
+                IO::VERBOSITY_VERY_VERBOSE,
                 true,
                 <<<'EOF'
 
@@ -96,7 +96,7 @@ EOF
             ];
         })();
 
-        foreach ([InputOutput::VERBOSITY_VERBOSE, InputOutput::VERBOSITY_NORMAL, InputOutput::VERBOSITY_QUIET] as $verbosity) {
+        foreach ([IO::VERBOSITY_VERBOSE, IO::VERBOSITY_NORMAL, IO::VERBOSITY_QUIET] as $verbosity) {
             yield (function () use ($verbosity) {
                 return [
                     new RequirementCollection(),
@@ -123,7 +123,7 @@ EOF
 
             return [
                 $requirements,
-                InputOutput::VERBOSITY_DEBUG,
+                IO::VERBOSITY_DEBUG,
                 true,
                 <<<'EOF'
 
@@ -161,7 +161,7 @@ EOF
 
             return [
                 $requirements,
-                InputOutput::VERBOSITY_VERY_VERBOSE,
+                IO::VERBOSITY_VERY_VERBOSE,
                 true,
                 <<<'EOF'
 
@@ -182,7 +182,7 @@ EOF
             ];
         })();
 
-        foreach ([InputOutput::VERBOSITY_VERBOSE, InputOutput::VERBOSITY_NORMAL, InputOutput::VERBOSITY_QUIET] as $verbosity) {
+        foreach ([IO::VERBOSITY_VERBOSE, IO::VERBOSITY_NORMAL, IO::VERBOSITY_QUIET] as $verbosity) {
             yield (function () use ($verbosity) {
                 $requirements = new RequirementCollection();
 

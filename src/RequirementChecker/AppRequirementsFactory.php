@@ -23,8 +23,6 @@ use function array_map;
 use function sprintf;
 use function str_replace;
 use function substr;
-use function var_export;
-use function version_compare;
 
 /**
  * Collect the list of requirements for running the application.
@@ -147,7 +145,6 @@ final class AppRequirementsFactory
                 return [
                     $requirement->getIsFullfilledChecker(),
                     $requirement->getTestMessage(),
-                    $requirement->getHelpHtml(),
                     $requirement->getHelpText(),
                 ];
             },

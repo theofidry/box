@@ -23,6 +23,7 @@ use function KevinGH\Box\FileSystem\file_contents;
 use function KevinGH\Box\FileSystem\filename;
 use function sprintf;
 use function str_replace;
+use Symfony\Component\Console\Terminal;
 use function var_export;
 
 /**
@@ -67,10 +68,11 @@ PHP;
 
     private const CLASSED_USED = [
         Checker::class,
-        \Symfony\Requirements\Requirement::class,
-        \Symfony\Requirements\RequirementCollection::class,
+        IO::class,
+        Printer::class,
         Requirement::class,
         RequirementCollection::class,
+        Terminal::class,
     ];
 
     /**

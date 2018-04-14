@@ -12,15 +12,12 @@
 
 namespace KevinGH\Box\RequirementChecker;
 
-use const STDOUT;
-use Symfony\Component\Console\Input\ArgvInput;
-
 /**
  * The code in this file must be PHP 5.3+ compatible as is used to know if the application can be run.
  *
  * @private
  */
-final class InputOutput
+final class IO
 {
     const VERBOSITY_QUIET = 16;
     const VERBOSITY_NORMAL = 32;
@@ -28,14 +25,15 @@ final class InputOutput
     const VERBOSITY_VERY_VERBOSE = 128;
     const VERBOSITY_DEBUG = 256;
     
-    private $options;
+    private $tokens;
+    private $parsed;
     private $interactive;
     private $verbosity = self::VERBOSITY_NORMAL;
     private $colorSupport;
 
     public function __construct()
     {
-        $this->options = $this->parseInput();
+        $this->parseInput();
 
         $shellVerbosity = $this->configureVerbosity();
         $this->interactive = $this->checkInteractivity($shellVerbosity);
@@ -79,23 +77,23 @@ final class InputOutput
      */
     private function parseInput()
     {
-        $tokens = $_SERVER['argv'];
+        $this->tokens = $_SERVER['argv'];
 
-        $options = array();
+        $parsed = $this->tokens;
 
-        while (null !== $token = array_shift($tokens)) {
+        while (null !== $token = array_shift($this->tokens)) {
             if ('' === $token) {
                 continue;
             } elseif (0 === strpos($token, '--')) {
-                list($name, $value) = $this->parseLongOption($token, $tokens);
-                $options[$name] = $value;
+                list($name, $value) = $this->parseLongOption($token);
+                $parsed[$name] = $value;
             } elseif ('-' === $token[0] && '-' !== $token) {
                 list($name, $value) = $this->parseShortOption($token);
-                $options[$name] = $value;
+                $parsed[$name] = $value;
             }
         }
 
-        return $options;
+        $this->parsed = $parsed;
     }
 
     /**
@@ -103,13 +101,13 @@ final class InputOutput
      *
      * @return array
      */
-    private function parseLongOption($token, array &$tokens)
+    private function parseLongOption($token)
     {
         $name = substr($token, 2);
 
         if (false !== $pos = strpos($name, '=')) {
             if (0 === strlen($value = substr($name, $pos + 1))) {
-                array_unshift($tokens, $value);
+                array_unshift($this->parsed, $value);
             }
 
             return array(substr($name, 0, $pos), $value);
@@ -137,7 +135,7 @@ final class InputOutput
     {
         $values = (array) $values;
 
-        foreach ($this->options as $token) {
+        foreach ($this->parsed as $token) {
             if ($onlyParams && '--' === $token) {
                 return false;
             }
@@ -157,7 +155,7 @@ final class InputOutput
     public function getParameterOption($values, $default = false, $onlyParams = false)
     {
         $values = (array) $values;
-        $tokens = $this->options;
+        $tokens = $this->parsed;
 
         while (0 < count($tokens)) {
             $token = array_shift($tokens);
@@ -208,7 +206,7 @@ final class InputOutput
      */
     private function configureVerbosity()
     {
-        switch ($shellVerbosity = (int)getenv('SHELL_VERBOSITY')) {
+        switch ($shellVerbosity = (int) getenv('SHELL_VERBOSITY')) {
             case -1:
                 $this->verbosity = self::VERBOSITY_QUIET;
                 break;
@@ -241,14 +239,14 @@ final class InputOutput
                 || $this->hasParameterOption('--verbose=2', true)
                 || 2 === $this->getParameterOption('--verbose', false, true)
             ) {
-                $this->verbosity = self::VERBOSITY_VERBOSE;
+                $this->verbosity = self::VERBOSITY_VERY_VERBOSE;
                 $shellVerbosity = 2;
             } elseif ($this->hasParameterOption('-v', true)
                 || $this->hasParameterOption('--verbose=1', true)
                 || $this->hasParameterOption('--verbose', true)
                 || $this->getParameterOption('--verbose', false, true)
             ) {
-                $this->verbosity = self::VERBOSITY_VERY_VERBOSE;
+                $this->verbosity = self::VERBOSITY_VERBOSE;
                 $shellVerbosity = 1;
             }
         }

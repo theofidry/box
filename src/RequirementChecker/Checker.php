@@ -31,11 +31,11 @@ final class Checker
 
         $checkPassed = $requirements->evaluateRequirements();
 
-        $io = new InputOutput();
+        $io = new IO();
 
-        if (false === $checkPassed) {
+        if (false === $checkPassed && IO::VERBOSITY_VERY_VERBOSE > $io->getVerbosity()) {
             // Override the default verbosity to output errors regardless of the verbosity asked by the user
-            $io->setVerbosity(InputOutput::VERBOSITY_VERY_VERBOSE);
+            $io->setVerbosity(IO::VERBOSITY_VERY_VERBOSE);
         }
 
         self::printCheck(
@@ -51,54 +51,55 @@ final class Checker
 
     public static function printCheck(Printer $printer, RequirementCollection $requirements)
     {
-        $verbosity = InputOutput::VERBOSITY_VERY_VERBOSE;
+        $verbosity = IO::VERBOSITY_VERY_VERBOSE;
 
         $iniPath = $requirements->getPhpIniPath();
 
         $printer->title('Box Requirements Checker', $verbosity);
 
-        $printer->println('> PHP is using the following php.ini file:', $verbosity);
+        $printer->printvln('> PHP is using the following php.ini file:', $verbosity);
 
         if ($iniPath) {
-            $printer->println('  '.$iniPath, $verbosity, 'green');
+            $printer->printvln('  '.$iniPath, $verbosity, 'green');
         } else {
-            $printer->println('  WARNING: No configuration file (php.ini) used by PHP!', $verbosity, 'yellow');
+            $printer->printvln('  WARNING: No configuration file (php.ini) used by PHP!', $verbosity, 'yellow');
         }
 
-        $printer->println('', $verbosity);
+        $printer->printvln('', $verbosity);
 
         if (count($requirements) > 0) {
-            $printer->println('> Checking Box requirements:', $verbosity);
-            $printer->print('  ', $verbosity);
+            $printer->printvln('> Checking Box requirements:', $verbosity);
+            $printer->printv('  ', $verbosity);
         } else {
-            $printer->println('> No requirements found.', $verbosity);
+            $printer->printvln('> No requirements found.', $verbosity);
         }
 
         $errorMessages = array();
 
         foreach ($requirements->getRequirements() as $requirement) {
             if ($errorMessage = $printer->getRequirementErrorMessage($requirement)) {
-                if ($printer->getVerbosity() === InputOutput::VERBOSITY_DEBUG) {
-                    $printer->println('✘ '.$requirement->getTestMessage(), InputOutput::VERBOSITY_DEBUG, 'red');
-                    $printer->print('  ', InputOutput::VERBOSITY_DEBUG);
+                if ($printer->getVerbosity() === IO::VERBOSITY_DEBUG) {
+                    $printer->printvln('✘ '.$requirement->getTestMessage(), IO::VERBOSITY_DEBUG, 'red');
+                    $printer->printv('  ', IO::VERBOSITY_DEBUG);
+                    $errorMessages[] = $errorMessage;
                 } else {
-                    $printer->print('E', $verbosity, 'red');
+                    $printer->printv('E', $verbosity, 'red');
                     $errorMessages[] = $errorMessage;
                 }
 
                 continue;
             }
 
-            if ($printer->getVerbosity() === InputOutput::VERBOSITY_DEBUG) {
-                $printer->println('✔ '.$requirement->getHelpText(), InputOutput::VERBOSITY_DEBUG, 'green');
-                $printer->print('  ', InputOutput::VERBOSITY_DEBUG);
+            if ($printer->getVerbosity() === IO::VERBOSITY_DEBUG) {
+                $printer->printvln('✔ '.$requirement->getHelpText(), IO::VERBOSITY_DEBUG, 'green');
+                $printer->printv('  ', IO::VERBOSITY_DEBUG);
             } else {
-                $printer->print('.', $verbosity, 'green');
+                $printer->printv('.', $verbosity, 'green');
             }
         }
 
-        if ($printer->getVerbosity() !== InputOutput::VERBOSITY_DEBUG && count($requirements) > 0) {
-            $printer->println('', $verbosity);
+        if ($printer->getVerbosity() !== IO::VERBOSITY_DEBUG && count($requirements) > 0) {
+            $printer->printvln('', $verbosity);
         }
 
         if ($requirements->evaluateRequirements()) {
@@ -109,9 +110,11 @@ final class Checker
             $printer->title('Fix the following mandatory requirements:', $verbosity, 'red');
 
             foreach ($errorMessages as $errorMessage) {
-                $printer->println(' * '.$errorMessage, $verbosity);
+                $printer->printv(' * '.$errorMessage, $verbosity);
             }
         }
+
+        $printer->printvln('', $verbosity);
     }
 
     /**

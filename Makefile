@@ -79,20 +79,20 @@ e2e_check_requirements: bin/box src vendor
 	docker build -t box_php53 -f "$$PWD/.docker/php53" .
 
 	bin/box compile --working-dir fixtures/check-requirements/pass-no-config/
-	docker run -it --rm -v "$$PWD":/opt/box -w /opt/box box_php53 php fixtures/check-requirements/pass-no-config/default.phar || exit 1
+	docker run -it --rm -v "$$PWD":/opt/box -w /opt/box box_php53 php fixtures/check-requirements/pass-no-config/default.phar -vvv || exit 1
 
 	rm fixtures/check-requirements/pass-no-config/actual-output || true
-	php fixtures/check-requirements/pass-no-config/default.phar > fixtures/check-requirements/pass-no-config/actual-output
+	php fixtures/check-requirements/pass-no-config/default.phar -vvv > fixtures/check-requirements/pass-no-config/actual-output
 	diff fixtures/check-requirements/pass-no-config/expected-output fixtures/check-requirements/pass-no-config/actual-output
 
 	bin/box compile --working-dir fixtures/check-requirements/pass-complete/
 	rm fixtures/check-requirements/pass-complete/actual-output || true
-	php fixtures/check-requirements/pass-complete/default.phar > fixtures/check-requirements/pass-complete/actual-output
+	php fixtures/check-requirements/pass-complete/default.phar -vvv > fixtures/check-requirements/pass-complete/actual-output
 	diff fixtures/check-requirements/pass-complete/expected-output fixtures/check-requirements/pass-complete/actual-output
 
 	bin/box compile --working-dir fixtures/check-requirements/fail-complete/
 	rm fixtures/check-requirements/fail-complete/actual-output || true
-	php fixtures/check-requirements/fail-complete/default.phar > fixtures/check-requirements/fail-complete/actual-output || true
+	php fixtures/check-requirements/fail-complete/default.phar -vvv > fixtures/check-requirements/fail-complete/actual-output || true
 	diff fixtures/check-requirements/fail-complete/expected-output fixtures/check-requirements/fail-complete/actual-output
 
 
