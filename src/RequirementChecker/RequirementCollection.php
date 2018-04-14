@@ -13,20 +13,26 @@
 namespace KevinGH\Box\RequirementChecker;
 
 use ArrayIterator;
+use Countable;
 use IteratorAggregate;
 use Traversable;
 
-final class LazyRequirementCollection implements IteratorAggregate
+/**
+ * The code in this file must be PHP 5.3+ compatible as is used to know if the application can be run.
+ *
+ * @private
+ */
+final class RequirementCollection implements IteratorAggregate, Countable
 {
     /**
-     * @var LazyRequirement[]
+     * @var Requirement[]
      */
     private $requirements = array();
 
     /**
      * {@inheritdoc}
      *
-     * @return Traversable|LazyRequirement[]
+     * @return Traversable|Requirement[]
      */
     public function getIterator()
     {
@@ -34,9 +40,17 @@ final class LazyRequirementCollection implements IteratorAggregate
     }
 
     /**
-     * @param LazyRequirement $requirement
+     * {@inheritdoc}
      */
-    public function add(LazyRequirement $requirement)
+    public function count()
+    {
+        return count($this->requirements);
+    }
+
+    /**
+     * @param Requirement $requirement
+     */
+    public function add(Requirement $requirement)
     {
         $this->requirements[] = $requirement;
     }
@@ -47,18 +61,17 @@ final class LazyRequirementCollection implements IteratorAggregate
      * @param string      $checkIsFulfilled Whether the requirement is fulfilled; This string is will be evaluated with `eval()` because
      *                                      PHP does not support the serialization or the export of closures.
      * @param string      $testMessage      The message for testing the requirement
-     * @param string      $helpHtml         The help text formatted in HTML for resolving the problem
-     * @param string|null $helpText         The help text (when null, it will be inferred from $helpHtml, i.e. stripped from HTML tags)
+     * @param string $helpText         The help text (when null, it will be inferred from $helpHtml, i.e. stripped from HTML tags)
      */
-    public function addRequirement($checkIsFulfilled, $testMessage, $helpHtml, $helpText = null)
+    public function addRequirement($checkIsFulfilled, $testMessage, $helpText)
     {
-        $this->add(new LazyRequirement($checkIsFulfilled, $testMessage, $helpHtml, $helpText, false));
+        $this->add(new Requirement($checkIsFulfilled, $testMessage, $helpText));
     }
 
     /**
      * Returns all mandatory requirements.
      *
-     * @return LazyRequirement[]
+     * @return Requirement[]
      */
     public function getRequirements()
     {
@@ -73,5 +86,25 @@ final class LazyRequirementCollection implements IteratorAggregate
     public function getPhpIniPath()
     {
         return get_cfg_var('cfg_file_path');
+    }
+
+    /**
+     * @return bool
+     */
+    public function evaluateRequirements()
+    {
+        return array_reduce(
+            $this->requirements,
+            /**
+             * @param bool        $checkPassed
+             * @param Requirement $requirement
+             *
+             * @return bool
+             */
+            function ($checkPassed, Requirement $requirement) {
+                return $checkPassed && $requirement->isFulfilled();
+            },
+            true
+        );
     }
 }

@@ -69,8 +69,8 @@ PHP;
         Checker::class,
         \Symfony\Requirements\Requirement::class,
         \Symfony\Requirements\RequirementCollection::class,
-        LazyRequirement::class,
-        LazyRequirementCollection::class,
+        Requirement::class,
+        RequirementCollection::class,
     ];
 
     /**

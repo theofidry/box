@@ -44,7 +44,7 @@ final class AppRequirementsFactory
      */
     public static function create(string $composerJson): array
     {
-        $requirements = new LazyRequirementCollection();
+        $requirements = new RequirementCollection();
 
         $composerLockContents = self::retrieveComposerLockContents($composerJson);
 
@@ -54,21 +54,20 @@ final class AppRequirementsFactory
         return self::exportRequirementsIntoConfig($requirements);
     }
 
-    private static function configurePhpVersionRequirements(LazyRequirementCollection $requirements, array $composerLockContents): void
+    private static function configurePhpVersionRequirements(RequirementCollection $requirements, array $composerLockContents): void
     {
         $installedPhpVersion = PHP_VERSION;
 
         if (isset($composerLockContents['platform']['php'])) {
             $requiredPhpVersion = $composerLockContents['platform']['php'];
 
-            $requirements->addLazyRequirement(
+            $requirements->addRequirement(
                 "return version_compare(PHP_VERSION, '$requiredPhpVersion', '>=');",
                 sprintf(
                     'The application requires the version "%s" or greater. Got "%s"',
                     $requiredPhpVersion,
                     $installedPhpVersion
                 ),
-                '',
                 sprintf(
                     'The application requires the version "%s" or greater.',
                     $requiredPhpVersion
@@ -87,7 +86,7 @@ final class AppRequirementsFactory
                 continue;
             }
 
-            $requirements->addLazyRequirement(
+            $requirements->addRequirement(
                 "return version_compare(PHP_VERSION, '$requiredPhpVersion', '>=');",
                 sprintf(
                     'The package "%s" requires the version "%s" or greater. Got "%s"',
@@ -95,7 +94,6 @@ final class AppRequirementsFactory
                     $requiredPhpVersion,
                     $installedPhpVersion
                 ),
-                '',
                 sprintf(
                     'The package "%s" requires the version "%s" or greater.',
                     $packageInfo['name'],
@@ -105,7 +103,7 @@ final class AppRequirementsFactory
         }
     }
 
-    private static function configureExtensionRequirements(LazyRequirementCollection $requirements, array $composerLockContents): void
+    private static function configureExtensionRequirements(RequirementCollection $requirements, array $composerLockContents): void
     {
         $extensionRequirements = self::collectExtensionRequirements($composerLockContents);
 
@@ -133,20 +131,19 @@ final class AppRequirementsFactory
                     );
                 }
 
-                $requirements->addLazyRequirement(
+                $requirements->addRequirement(
                     "return extension_loaded('$extension');",
                     $message,
-                    '',
                     $helpMessage
                 );
             }
         }
     }
 
-    private static function exportRequirementsIntoConfig(LazyRequirementCollection $requirements): array
+    private static function exportRequirementsIntoConfig(RequirementCollection $requirements): array
     {
         return array_map(
-            function (LazyRequirement $requirement): array {
+            function (Requirement $requirement): array {
                 return [
                     $requirement->getIsFullfilledChecker(),
                     $requirement->getTestMessage(),

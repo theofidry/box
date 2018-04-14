@@ -12,29 +12,32 @@
 
 namespace KevinGH\Box\RequirementChecker;
 
-use Symfony\Requirements\Requirement as SymfonyRequirement;
-
 /**
  * The code in this file must be PHP 5.3+ compatible as is used to know if the application can be run.
  *
  * @private
  */
-final class LazyRequirement extends SymfonyRequirement
+final class Requirement
 {
     private $checkIsFulfilled;
-    private $isFulfilled;
+    private $fulfilled;
+    private $testMessage;
+    private $helpText;
 
     /**
-     * {@inheritdoc}
-     *
      * @param string $checkIsFulfilled Callable as a string (it will be evaluated with `eval()` returning a `bool` value telling whether the
      *                                 requirement is fulfilled or not. The condition is evaluated lazily.
+     * @param string      $testMessage The message for testing the requirement
+     * @param string $helpText    The help text (when null, it will be inferred from $helpHtml, i.e. stripped from HTML tags)
      */
-    public function __construct($checkIsFulfilled, $testMessage, $helpHtml, $helpText = null, $optional = false)
-    {
-        parent::__construct(false, $testMessage, $helpHtml, $helpText, $optional);
-
-        $this->checkIsFulfilled =$checkIsFulfilled;
+    public function __construct(
+        $checkIsFulfilled,
+        $testMessage,
+        $helpText
+    ) {
+        $this->checkIsFulfilled = $checkIsFulfilled;
+        $this->testMessage = (string) $testMessage;
+        $this->helpText = $helpText;
     }
 
     /**
@@ -42,11 +45,11 @@ final class LazyRequirement extends SymfonyRequirement
      */
     public function isFulfilled()
     {
-        if (null === $this->isFulfilled) {
-            $this->isFulfilled = eval($this->checkIsFulfilled);
+        if (null === $this->fulfilled) {
+            $this->fulfilled = eval($this->checkIsFulfilled);
         }
 
-        return $this->isFulfilled;
+        return $this->fulfilled;
     }
 
     /**
@@ -55,5 +58,21 @@ final class LazyRequirement extends SymfonyRequirement
     public function getIsFullfilledChecker()
     {
         return $this->checkIsFulfilled;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTestMessage()
+    {
+        return $this->testMessage;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHelpText()
+    {
+        return $this->helpText;
     }
 }
