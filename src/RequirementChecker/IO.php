@@ -11,10 +11,6 @@
  */
 
 namespace KevinGH\Box\RequirementChecker;
-use function array_flip;
-use function array_key_exists;
-use function preg_match;
-use function substr;
 
 /**
  * The code in this file must be PHP 5.3+ compatible as is used to know if the application can be run.

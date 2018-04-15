@@ -39,7 +39,7 @@ JSON
             [
                 [
                     "return version_compare(PHP_VERSION, '^7.1', '>=');",
-                    'The application requires the version "^7.1" or greater. Got "7.1.10"',
+                    'The application requires the version "^7.1" or greater.',
                     'The application requires the version "^7.1" or greater.',
                 ],
                 [
@@ -105,12 +105,12 @@ JSON
             [
                 [
                     "return version_compare(PHP_VERSION, '>=5.3', '>=');",
-                    'The package "beberlei/assert" requires the version ">=5.3" or greater. Got "7.1.10"',
+                    'The package "beberlei/assert" requires the version ">=5.3" or greater.',
                     'The package "beberlei/assert" requires the version ">=5.3" or greater.',
                 ],
                 [
                     "return version_compare(PHP_VERSION, '^5.3.2 || ^7.0', '>=');",
-                    'The package "composer/ca-bundle" requires the version "^5.3.2 || ^7.0" or greater. Got "7.1.10"',
+                    'The package "composer/ca-bundle" requires the version "^5.3.2 || ^7.0" or greater.',
                     'The package "composer/ca-bundle" requires the version "^5.3.2 || ^7.0" or greater.',
                 ],
                 [
@@ -209,7 +209,7 @@ JSON
             [
                 [
                     "return version_compare(PHP_VERSION, '^7.3', '>=');",
-                    'The application requires the version "^7.3" or greater. Got "7.1.10"',
+                    'The application requires the version "^7.3" or greater.',
                     'The application requires the version "^7.3" or greater.',
                 ],
                 [
@@ -301,7 +301,7 @@ JSON
             [
                 [
                     "return version_compare(PHP_VERSION, '^7.3', '>=');",
-                    'The application requires the version "^7.3" or greater. Got "7.1.10"',
+                    'The application requires the version "^7.3" or greater.',
                     'The application requires the version "^7.3" or greater.',
                 ],
                 [

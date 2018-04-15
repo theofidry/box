@@ -60,6 +60,7 @@ class CheckerTest extends TestCase
 Box Requirements Checker
 ========================
 
+> Using PHP 7.1.10
 > PHP is using the following php.ini file:
   /path/to/php.ini
 
@@ -84,6 +85,7 @@ EOF
 Box Requirements Checker
 ========================
 
+> Using PHP 7.1.10
 > PHP is using the following php.ini file:
   /path/to/php.ini
 
@@ -132,6 +134,7 @@ EOF
 Box Requirements Checker
 ========================
 
+> Using PHP 7.1.10
 > PHP is using the following php.ini file:
   /path/to/php.ini
 
@@ -171,6 +174,7 @@ EOF
 Box Requirements Checker
 ========================
 
+> Using PHP 7.1.10
 > PHP is using the following php.ini file:
   /path/to/php.ini
 

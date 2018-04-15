@@ -2,6 +2,7 @@
 Box Requirements Checker
 ========================
 
+> Using PHP 7.1.10
 > PHP is using the following php.ini file:
   /Users/tfidry/.phpbrew/php/php-7.1.10/etc/php.ini
 

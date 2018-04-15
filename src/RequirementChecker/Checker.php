@@ -57,6 +57,9 @@ final class Checker
 
         $printer->title('Box Requirements Checker', $verbosity);
 
+        $printer->printv('> Using PHP ', $verbosity);
+        $printer->printvln(PHP_VERSION, $verbosity, 'green');
+
         $printer->printvln('> PHP is using the following php.ini file:', $verbosity);
 
         if ($iniPath) {

@@ -52,17 +52,14 @@ final class AppRequirementsFactory
 
     private static function configurePhpVersionRequirements(RequirementCollection $requirements, array $composerLockContents): void
     {
-        $installedPhpVersion = PHP_VERSION;
-
         if (isset($composerLockContents['platform']['php'])) {
             $requiredPhpVersion = $composerLockContents['platform']['php'];
 
             $requirements->addRequirement(
                 "return version_compare(PHP_VERSION, '$requiredPhpVersion', '>=');",
                 sprintf(
-                    'The application requires the version "%s" or greater. Got "%s"',
-                    $requiredPhpVersion,
-                    $installedPhpVersion
+                    'The application requires the version "%s" or greater.',
+                    $requiredPhpVersion
                 ),
                 sprintf(
                     'The application requires the version "%s" or greater.',
@@ -85,10 +82,9 @@ final class AppRequirementsFactory
             $requirements->addRequirement(
                 "return version_compare(PHP_VERSION, '$requiredPhpVersion', '>=');",
                 sprintf(
-                    'The package "%s" requires the version "%s" or greater. Got "%s"',
+                    'The package "%s" requires the version "%s" or greater.',
                     $packageInfo['name'],
-                    $requiredPhpVersion,
-                    $installedPhpVersion
+                    $requiredPhpVersion
                 ),
                 sprintf(
                     'The package "%s" requires the version "%s" or greater.',
