@@ -12,7 +12,18 @@
 
 namespace KevinGH\Box\RequirementChecker;
 
+use function array_map;
+use function explode;
+use function implode;
+use const PHP_EOL;
+use function rtrim;
+use function str_pad;
+use const STR_PAD_RIGHT;
+use function str_repeat;
+use function strlen;
+use function substr;
 use Symfony\Component\Console\Terminal;
+use function wordwrap;
 
 /**
  * The code in this file must be PHP 5.3+ compatible as is used to know if the application can be run.
@@ -32,23 +43,23 @@ final class Printer
     );
     private $verbosity;
     private $supportColors;
-    private $with;
+    private $width;
 
     /**
      * @param int $verbosity
      * @param bool $supportColors
-     * @param int|null $with
+     * @param int|null $width
      */
-    public function __construct($verbosity, $supportColors, $with = null)
+    public function __construct($verbosity, $supportColors, $width = null)
     {
-        if (null === $with) {
+        if (null === $width) {
             $terminal = new Terminal();
-            $with = $terminal->getWidth();
+            $width = $terminal->getWidth();
         }
 
         $this->verbosity = $verbosity;
         $this->supportColors = $supportColors;
-        $this->with = $with;
+        $this->width = $width;
     }
 
     /**
@@ -72,7 +83,14 @@ final class Printer
 
         $this->printvln('', $verbosity, $style);
         $this->printvln($title, $verbosity, $style);
-        $this->printvln(str_repeat('=', strlen($title)), $verbosity, $style);
+        $this->printvln(
+            str_repeat(
+                '=',
+                min(strlen($title), $this->width)
+            ),
+            $verbosity,
+            $style
+        );
         $this->printvln('', $verbosity, $style);
     }
 
@@ -87,7 +105,7 @@ final class Printer
             return null;
         }
 
-        $errorMessage = wordwrap($requirement->getTestMessage(), $this->with - 3, PHP_EOL.'   ').PHP_EOL;
+        $errorMessage = wordwrap($requirement->getTestMessage(), $this->width - 3, PHP_EOL.'   ').PHP_EOL;
 
         return $errorMessage;
     }
@@ -100,16 +118,33 @@ final class Printer
      */
     public function block($title, $message, $verbosity, $style = null)
     {
-        $message = str_pad(
-            ' ['.$title.'] '.trim($message).' ', $this->with,
-            ' ',
-            STR_PAD_RIGHT
-        );
+        $prefix = ' [' . $title . '] ';
+        $message = $prefix .trim($message);
+
+        $lines = [];
+
+        $remainingMessage = $message;
+
+        while (strlen($remainingMessage) > 0) {
+            $wrapped = wordwrap($remainingMessage, $this->width - 3, '💔');
+
+
+            $line = explode('💔', $wrapped)[0];
+            $remainingMessage = ltrim(substr($remainingMessage, strlen($line)));
+
+            if (strlen($remainingMessage) > 0) {
+                $remainingMessage = str_repeat(' ', strlen($prefix)).$remainingMessage;
+            }
+
+            $lines[] = str_pad($line, $this->width, ' ', STR_PAD_RIGHT);
+        }
 
         $this->printvln('', $verbosity);
-        $this->printvln(str_repeat(' ', $this->with), $verbosity, $style);
-        $this->printvln($message, $verbosity, $style);
-        $this->printv(str_repeat(' ', $this->with), $verbosity, $style);
+        $this->printvln(str_repeat(' ', $this->width), $verbosity, $style);
+        foreach ($lines as $line) {
+            $this->printvln($line, $verbosity, $style);
+        }
+        $this->printv(str_repeat(' ', $this->width), $verbosity, $style);
         $this->printvln('', $verbosity);
     }
 
@@ -134,6 +169,8 @@ final class Printer
         if ($verbosity > $this->verbosity) {
             return;
         }
+
+        $message = wordwrap($message, $this->width);
 
         $message = sprintf(
             '%s%s%s',
