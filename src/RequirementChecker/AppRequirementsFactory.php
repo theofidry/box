@@ -34,20 +34,18 @@ final class AppRequirementsFactory
     private const SELF_PACKAGE = '__APPLICATION__';
 
     /**
-     * @param string $composerJson Path to the `composer.json` file
+     * @param string $composerLockContents JSON contents of the `composer.lock` file
      *
-     * @throws UnexpectedValueException When the file could not be found or decoded
-     *
-     * @return array Configured requirements
+     * @return array Serialized configured requirements
      */
-    public static function create(string $composerJson): array
+    public static function create(string $composerLockContents): array
     {
+        $lockDecodedContents = (new Json())->decode($composerLockContents, true);
+
         $requirements = new RequirementCollection();
 
-        $composerLockContents = self::retrieveComposerLockContents($composerJson);
-
-        self::configurePhpVersionRequirements($requirements, $composerLockContents);
-        self::configureExtensionRequirements($requirements, $composerLockContents);
+        self::configurePhpVersionRequirements($requirements, $lockDecodedContents);
+        self::configureExtensionRequirements($requirements, $lockDecodedContents);
 
         return self::exportRequirementsIntoConfig($requirements);
     }
@@ -80,7 +78,7 @@ final class AppRequirementsFactory
         foreach ($packages as $packageInfo) {
             $requiredPhpVersion = $packageInfo['require']['php'] ?? null;
 
-            if (null !== $requiredPhpVersion) {
+            if (null === $requiredPhpVersion) {
                 continue;
             }
 
@@ -202,14 +200,5 @@ final class AppRequirementsFactory
         }
 
         return array_diff_key($requirements, $polyfills);
-    }
-
-    private static function retrieveComposerLockContents(string $composerJson): array
-    {
-        $composerLock = str_replace('.json', '.lock', $composerJson);
-
-        Assertion::file($composerLock);
-
-        return (new Json())->decodeFile($composerLock, true);
     }
 }

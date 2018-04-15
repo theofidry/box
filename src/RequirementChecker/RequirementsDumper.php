@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace KevinGH\Box\RequirementChecker;
 
+use Assert\Assertion;
+use KevinGH\Box\Compactor\Json;
 use ReflectionClass;
 use const PHP_EOL;
 use function array_column;
@@ -98,7 +100,11 @@ PHP;
 
     private static function dumpRequirementsConfig(string $composerJson): array
     {
-        $config = AppRequirementsFactory::create($composerJson);
+        $config = AppRequirementsFactory::create(
+            file_contents(
+                str_replace('.json', '.lock', $composerJson)
+            )
+        );
 
         return [
             Checker::REQUIREMENTS_CONFIG,
