@@ -11,6 +11,10 @@
  */
 
 namespace KevinGH\Box\RequirementChecker;
+use function array_flip;
+use function array_key_exists;
+use function preg_match;
+use function substr;
 
 /**
  * The code in this file must be PHP 5.3+ compatible as is used to know if the application can be run.
@@ -24,9 +28,9 @@ final class IO
     const VERBOSITY_VERBOSE = 64;
     const VERBOSITY_VERY_VERBOSE = 128;
     const VERBOSITY_DEBUG = 256;
-    
-    private $tokens;
-    private $parsed;
+
+    private $shortParam = array();
+    private $longParam = array();
     private $interactive;
     private $verbosity = self::VERBOSITY_NORMAL;
     private $colorSupport;
@@ -36,6 +40,7 @@ final class IO
         $this->parseInput();
 
         $shellVerbosity = $this->configureVerbosity();
+
         $this->interactive = $this->checkInteractivity($shellVerbosity);
         $this->colorSupport = $this->checkColorSupport();
     }
@@ -73,27 +78,77 @@ final class IO
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function hasParameterOption($values)
+    {
+        $values = (array) $values;
+
+        foreach ($values as $value) {
+            if (0 === strpos($value, '--')) {
+                if (array_key_exists(substr($value, 2), $this->longParam)) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            if (0 === strpos($value, '-')) {
+                if (array_key_exists(substr($value, 1), $this->shortParam)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParameterOption($values, $default = false)
+    {
+        $values = (array) $values;
+
+        foreach ($values as $value) {
+            if (0 === strpos($value, '--')) {
+                if (array_key_exists($value = substr($value, 2), $this->longParam)) {
+                    return $this->longParam[$value];
+                }
+
+                break;
+            }
+
+            if (0 === strpos($value, '-')) {
+                if (array_key_exists($value = substr($value, 1), $this->shortParam)) {
+                    return $this->shortParam[$value];
+                }
+
+                break;
+            }
+        }
+
+        return $default;
+    }
+
+    /**
      * @return array
      */
     private function parseInput()
     {
-        $this->tokens = $_SERVER['argv'];
-
-        $parsed = $this->tokens;
-
-        while (null !== $token = array_shift($this->tokens)) {
-            if ('' === $token) {
-                continue;
-            } elseif (0 === strpos($token, '--')) {
+        foreach ($_SERVER['argv'] as $token) {
+            if (0 === strpos($token, '--')) {
                 list($name, $value) = $this->parseLongOption($token);
-                $parsed[$name] = $value;
-            } elseif ('-' === $token[0] && '-' !== $token) {
+                $this->longParam[$name] = $value;
+
+                continue;
+            }
+
+            if ('-' === $token[0] && '-' !== $token) {
                 list($name, $value) = $this->parseShortOption($token);
-                $parsed[$name] = $value;
+                $this->shortParam[$name] = $value;
             }
         }
-
-        $this->parsed = $parsed;
     }
 
     /**
@@ -103,14 +158,18 @@ final class IO
      */
     private function parseLongOption($token)
     {
-        $name = substr($token, 2);
+        $name = trim(substr($token, 2));
 
         if (false !== $pos = strpos($name, '=')) {
             if (0 === strlen($value = substr($name, $pos + 1))) {
-                array_unshift($this->parsed, $value);
+                array_unshift($this->longParam, $value);
             }
 
             return array(substr($name, 0, $pos), $value);
+        }
+
+        if (1 === preg_match('/^--(?<name>[\p{L}\d]+?) +(?<value>[\p{L}\d]+?)$/u', $token, $matches)) {
+            return array($matches['name'], $matches['value']);
         }
 
         return array($name, null);
@@ -129,55 +188,6 @@ final class IO
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function hasParameterOption($values, $onlyParams = false)
-    {
-        $values = (array) $values;
-
-        foreach ($this->parsed as $token) {
-            if ($onlyParams && '--' === $token) {
-                return false;
-            }
-            foreach ($values as $value) {
-                if ($token === $value || 0 === strpos($token, $value.'=')) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getParameterOption($values, $default = false, $onlyParams = false)
-    {
-        $values = (array) $values;
-        $tokens = $this->parsed;
-
-        while (0 < count($tokens)) {
-            $token = array_shift($tokens);
-            if ($onlyParams && '--' === $token) {
-                return false;
-            }
-
-            foreach ($values as $value) {
-                if ($token === $value || 0 === strpos($token, $value.'=')) {
-                    if (false !== $pos = strpos($token, '=')) {
-                        return substr($token, $pos + 1);
-                    }
-
-                    return array_shift($tokens);
-                }
-            }
-        }
-
-        return $default;
-    }
-
-    /**
      * @param int $shellVerbosity
      *
      * @return bool
@@ -188,7 +198,7 @@ final class IO
             return false;
         }
 
-        if (true === $this->hasParameterOption(array('--no-interaction', '-n'), true)) {
+        if (true === $this->hasParameterOption(array('--no-interaction', '-n'))) {
             return false;
         }
 
@@ -219,32 +229,31 @@ final class IO
             case 3:
                 $this->verbosity = self::VERBOSITY_DEBUG;
                 break;
-                break;
             default:
                 $shellVerbosity = 0;
                 break;
         }
 
-        if (true === $this->hasParameterOption(array('--quiet', '-q'), true)) {
+        if ($this->hasParameterOption(array('--quiet', '-q'))) {
             $this->verbosity = self::VERBOSITY_QUIET;
             $shellVerbosity = -1;
         } else {
-            if ($this->hasParameterOption('-vvv', true)
-                || $this->hasParameterOption('--verbose=3', true)
-                || 3 === $this->getParameterOption('--verbose', false, true)
+            if ($this->hasParameterOption('-vvv')
+                || $this->hasParameterOption('--verbose=3')
+                || '3' === $this->getParameterOption('--verbose', false)
             ) {
                 $this->verbosity = self::VERBOSITY_DEBUG;
                 $shellVerbosity = 3;
-            } elseif ($this->hasParameterOption('-vv', true)
-                || $this->hasParameterOption('--verbose=2', true)
-                || 2 === $this->getParameterOption('--verbose', false, true)
+            } elseif ($this->hasParameterOption('-vv')
+                || $this->hasParameterOption('--verbose=2')
+                || '2' === $this->getParameterOption('--verbose', false)
             ) {
                 $this->verbosity = self::VERBOSITY_VERY_VERBOSE;
                 $shellVerbosity = 2;
-            } elseif ($this->hasParameterOption('-v', true)
-                || $this->hasParameterOption('--verbose=1', true)
-                || $this->hasParameterOption('--verbose', true)
-                || $this->getParameterOption('--verbose', false, true)
+            } elseif ($this->hasParameterOption('-v')
+                || $this->hasParameterOption('--verbose=1')
+                || $this->hasParameterOption('--verbose')
+                || $this->getParameterOption('--verbose', false)
             ) {
                 $this->verbosity = self::VERBOSITY_VERBOSE;
                 $shellVerbosity = 1;
