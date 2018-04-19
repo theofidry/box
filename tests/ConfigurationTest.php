@@ -2749,6 +2749,15 @@ COMMENT;
 
     public function test_the_requirement_checker_is_enabled_by_default(): void
     {
+        $this->assertFalse($this->config->checkRequirements());
+    }
+
+    public function test_the_requirement_checker_is_enabled_by_default_if_a_composer_lock_file_is_found(): void
+    {
+        file_put_contents('composer.lock', '{}');
+
+        $this->reloadConfig();
+
         $this->assertTrue($this->config->checkRequirements());
     }
 
@@ -2757,6 +2766,12 @@ COMMENT;
         $this->setConfig([
             'check-requirements' => false,
         ]);
+
+        $this->assertFalse($this->config->checkRequirements());
+
+        file_put_contents('composer.lock', '{}');
+
+        $this->reloadConfig();
 
         $this->assertFalse($this->config->checkRequirements());
     }

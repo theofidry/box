@@ -36,7 +36,7 @@ final class Requirement
         $helpText
     ) {
         $this->checkIsFulfilled = $checkIsFulfilled;
-        $this->testMessage = (string) $testMessage;
+        $this->testMessage = $testMessage;
         $this->helpText = $helpText;
     }
 
@@ -49,7 +49,7 @@ final class Requirement
             $this->fulfilled = eval($this->checkIsFulfilled);
         }
 
-        return $this->fulfilled;
+        return !!$this->fulfilled;  // Cast to boolean, `(bool)` and `boolval()` are not available in PHP 5.3
     }
 
     /**

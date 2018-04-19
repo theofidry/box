@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KevinGH\Box\RequirementChecker;
 
+use function json_decode;
 use PHPUnit\Framework\TestCase;
 
 class AppRequirementsFactoryTest extends TestCase
@@ -13,7 +14,7 @@ class AppRequirementsFactoryTest extends TestCase
      */
     public function test_it_can_generate_and_serialized_requirements_from_a_composer_lock_file(string $composerLockContents, array $expected)
     {
-        $actual = AppRequirementsFactory::create($composerLockContents);
+        $actual = AppRequirementsFactory::create(json_decode($composerLockContents, true));
 
         $this->assertSame($expected, $actual);
     }

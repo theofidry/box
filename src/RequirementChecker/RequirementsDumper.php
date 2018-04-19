@@ -82,10 +82,10 @@ PHP;
     /**
      * @return string[][]
      */
-    public static function dump(string $composerLock): array
+    public static function dump(array $composerLockDecodedContents): array
     {
         $filesWithContents = [
-            self::dumpRequirementsConfig($composerLock),
+            self::dumpRequirementsConfig($composerLockDecodedContents),
         ];
 
         foreach (self::CLASSED_USED as $class) {
@@ -100,9 +100,9 @@ PHP;
         return $filesWithContents;
     }
 
-    private static function dumpRequirementsConfig(string $composerLock): array
+    private static function dumpRequirementsConfig(array $composerLockDecodedContents): array
     {
-        $config = AppRequirementsFactory::create(file_contents($composerLock));
+        $config = AppRequirementsFactory::create($composerLockDecodedContents);
 
         return [
             Checker::REQUIREMENTS_CONFIG,

@@ -102,6 +102,26 @@ STUB;
         $actual = $this->generator->generate();
 
         $this->assertSame($expected, $actual);
+
+        $this->generator->checkRequirements(false);
+
+        $expected = <<<'STUB'
+<?php
+
+/*
+ * Custom Banner
+ *
+ * Yolo
+ */
+
+// No PHAR config
+
+__HALT_COMPILER(); ?>
+
+STUB;
+        $actual = $this->generator->generate();
+
+        $this->assertSame($expected, $actual);
     }
 
     public function test_it_can_generate_a_stub_with_a_custom_shebang(): void
@@ -120,6 +140,21 @@ STUB;
         $actual = $this->generator->generate();
 
         $this->assertSame($expected, $actual);
+
+        $this->generator->checkRequirements(false);
+
+        $expected = <<<'STUB'
+#!/usr/local/bin/env php
+<?php
+
+// No PHAR config
+
+__HALT_COMPILER(); ?>
+
+STUB;
+        $actual = $this->generator->generate();
+
+        $this->assertSame($expected, $actual);
     }
 
     public function test_it_can_generate_a_stub_without_a_shebang(): void
@@ -130,6 +165,20 @@ STUB;
 <?php
 
 require 'phar://' . __FILE__ . '/.box/check_requirements.php';
+
+__HALT_COMPILER(); ?>
+
+STUB;
+        $actual = $this->generator->generate();
+
+        $this->generator->checkRequirements(false);
+
+        $this->assertSame($expected, $actual);
+
+        $expected = <<<'STUB'
+<?php
+
+// No PHAR config
 
 __HALT_COMPILER(); ?>
 
@@ -156,6 +205,20 @@ STUB;
         $actual = $this->generator->generate();
 
         $this->assertSame($expected, $actual);
+
+        $this->generator->checkRequirements(false);
+
+        $expected = <<<'STUB'
+<?php
+
+Phar::mapPhar('acme.phar');
+
+__HALT_COMPILER(); ?>
+
+STUB;
+        $actual = $this->generator->generate();
+
+        $this->assertSame($expected, $actual);
     }
 
     public function test_it_can_generate_a_stub_with_no_alias(): void
@@ -166,6 +229,20 @@ STUB;
 <?php
 
 require 'phar://' . __FILE__ . '/.box/check_requirements.php';
+
+__HALT_COMPILER(); ?>
+
+STUB;
+        $actual = $this->generator->generate();
+
+        $this->assertSame($expected, $actual);
+
+        $this->generator->checkRequirements(false);
+
+        $expected = <<<'STUB'
+<?php
+
+// No PHAR config
 
 __HALT_COMPILER(); ?>
 
@@ -192,11 +269,7 @@ STUB;
         $actual = $this->generator->generate();
 
         $this->assertSame($expected, $actual);
-    }
 
-    public function test_it_can_generate_a_stub_with_an_index_file_and_without_the_requirements_checker(): void
-    {
-        $this->generator->index('acme.php');
         $this->generator->checkRequirements(false);
 
         $expected = <<<'STUB'
@@ -222,6 +295,20 @@ STUB;
 Phar::interceptFileFuncs();
 
 require 'phar://' . __FILE__ . '/.box/check_requirements.php';
+
+__HALT_COMPILER(); ?>
+
+STUB;
+        $actual = $this->generator->generate();
+
+        $this->assertSame($expected, $actual);
+
+        $this->generator->checkRequirements(false);
+
+        $expected = <<<'STUB'
+<?php
+
+Phar::interceptFileFuncs();
 
 __HALT_COMPILER(); ?>
 
@@ -262,6 +349,30 @@ Phar::mapPhar('test.phar');
 Phar::interceptFileFuncs();
 
 require 'phar://test.phar/.box/check_requirements.php';
+
+require 'phar://test.phar/index.php';
+
+__HALT_COMPILER(); ?>
+
+STUB;
+        $actual = $this->generator->generate();
+
+        $this->assertSame($expected, $actual);
+
+        $this->generator->checkRequirements(false);
+
+        $expected = <<<'STUB'
+#!/usr/local/bin/env php
+<?php
+
+/*
+ * Custom Banner
+ *
+ * Yolo
+ */
+
+Phar::mapPhar('test.phar');
+Phar::interceptFileFuncs();
 
 require 'phar://test.phar/index.php';
 

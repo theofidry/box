@@ -391,7 +391,7 @@ EOF
             'Adding requirements checker'
         );
 
-        $checkFiles = RequirementsDumper::dump($config->getComposerLock());
+        $checkFiles = RequirementsDumper::dump($config->getComposerLockDecodedContents());
 
         $scoper = $this->createScoper();
 

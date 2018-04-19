@@ -32,7 +32,7 @@ final class IO
 
     public function __construct()
     {
-        $this->parseInput();
+        $this->options = implode(' ', $_SERVER['argv']);
 
         $shellVerbosity = $this->configureVerbosity();
 
@@ -65,7 +65,9 @@ final class IO
     }
 
     /**
-     * {@inheritdoc}
+     * @param mixed
+     *
+     * @return bool
      */
     public function hasParameter($values)
     {
@@ -76,19 +78,12 @@ final class IO
                 '/\s%s\b/',
                 str_replace(' ', '\s+', preg_quote($value, '/'))
             );
+
             if (preg_match($regexp, $this->options) === 1) {
                 return true;
             }
         }
         return false;
-    }
-
-    /**
-     * @return array
-     */
-    private function parseInput()
-    {
-        $this->options = implode(' ', $_SERVER['argv']);
     }
 
     /**

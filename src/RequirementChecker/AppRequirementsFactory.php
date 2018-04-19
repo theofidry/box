@@ -34,18 +34,16 @@ final class AppRequirementsFactory
     private const SELF_PACKAGE = '__APPLICATION__';
 
     /**
-     * @param string $composerLockContents JSON contents of the `composer.lock` file
+     * @param array $composerLockDecodedContents Decoded JSON contents of the `composer.lock` file
      *
      * @return array Serialized configured requirements
      */
-    public static function create(string $composerLockContents): array
+    public static function create(array $composerLockDecodedContents): array
     {
-        $lockDecodedContents = (new Json())->decode($composerLockContents, true);
-
         $requirements = new RequirementCollection();
 
-        self::configurePhpVersionRequirements($requirements, $lockDecodedContents);
-        self::configureExtensionRequirements($requirements, $lockDecodedContents);
+        self::configurePhpVersionRequirements($requirements, $composerLockDecodedContents);
+        self::configureExtensionRequirements($requirements, $composerLockDecodedContents);
 
         return self::exportRequirementsIntoConfig($requirements);
     }
