@@ -2,12 +2,22 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the box project.
+ *
+ * (c) Kevin Herrera <kevin@herrera.io>
+ *     Théo Fidry <theo.fidry@gmail.com>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace KevinGH\Box\RequirementChecker;
 
 use KevinGH\Box\Console\DisplayNormalizer;
-use function ob_get_contents;
-use const PHP_VERSION;
 use PHPUnit\Framework\TestCase;
+use const PHP_VERSION;
+use function ob_get_contents;
 use function preg_replace;
 
 /**
@@ -23,7 +33,7 @@ class CheckerTest extends TestCase
         int $verbosity,
         bool $expectedResult,
         string $expectedOutput
-    ) {
+    ): void {
         $actualResult = $requirements->evaluateRequirements();
 
         ob_start();
@@ -110,7 +120,7 @@ EOF
                     new RequirementCollection(),
                     $verbosity,
                     true,
-                    ''
+                    '',
                 ];
             })();
         }

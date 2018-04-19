@@ -14,10 +14,9 @@ declare(strict_types=1);
 
 namespace KevinGH\Box\RequirementChecker;
 
-use Assert\Assertion;
 use Composer\Semver\Semver;
-use KevinGH\Box\Compactor\Json;
 use ReflectionClass;
+use Symfony\Component\Console\Terminal;
 use const PHP_EOL;
 use function array_column;
 use function array_map;
@@ -26,7 +25,6 @@ use function KevinGH\Box\FileSystem\file_contents;
 use function KevinGH\Box\FileSystem\filename;
 use function sprintf;
 use function str_replace;
-use Symfony\Component\Console\Terminal;
 use function var_export;
 
 /**

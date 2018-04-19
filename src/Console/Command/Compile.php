@@ -18,13 +18,8 @@ use Amp\MultiReasonException;
 use Assert\Assertion;
 use DateTimeImmutable;
 use DateTimeZone;
-use function Humbug\PhpScoper\create_reflector;
-use function Humbug\PhpScoper\create_scoper;
 use Humbug\PhpScoper\PhpParser\TraverserFactory;
-use Humbug\PhpScoper\Scoper\Composer\InstalledPackagesScoper;
-use Humbug\PhpScoper\Scoper\Composer\JsonFileScoper;
 use Humbug\PhpScoper\Scoper\NullScoper;
-use Humbug\PhpScoper\Scoper\PatchScoper;
 use Humbug\PhpScoper\Scoper\PhpScoper;
 use KevinGH\Box\Box;
 use KevinGH\Box\Compactor;
@@ -48,17 +43,16 @@ use Symfony\Component\VarDumper\Cloner\VarCloner;
 use Symfony\Component\VarDumper\Dumper\CliDumper;
 use const DATE_ATOM;
 use function count;
+use function Humbug\PhpScoper\create_reflector;
 use function KevinGH\Box\enable_debug;
 use function KevinGH\Box\FileSystem\chmod;
 use function KevinGH\Box\FileSystem\dump_file;
-use function KevinGH\Box\FileSystem\make_path_absolute;
 use function KevinGH\Box\FileSystem\make_path_relative;
 use function KevinGH\Box\FileSystem\remove;
 use function KevinGH\Box\FileSystem\rename;
 use function KevinGH\Box\formatted_filesize;
 use function KevinGH\Box\get_phar_compression_algorithms;
 use function KevinGH\Box\is_debug_enabled;
-use function uniqid;
 
 /**
  * @final

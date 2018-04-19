@@ -2,12 +2,21 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the box project.
+ *
+ * (c) Kevin Herrera <kevin@herrera.io>
+ *     Théo Fidry <theo.fidry@gmail.com>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace KevinGH\Box\RequirementChecker;
 
-use function ob_flush;
+use PHPUnit\Framework\TestCase;
 use function ob_get_clean;
 use function ob_start;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \KevinGH\Box\RequirementChecker\Printer
@@ -24,7 +33,7 @@ class PrinterTest extends TestCase
         string $message,
         int $messageVerbosity,
         string $expected
-    ) {
+    ): void {
         $printer = new Printer($verbosity, $colors, $width);
 
         ob_start();
@@ -43,7 +52,7 @@ class PrinterTest extends TestCase
         bool $colors,
         int $width,
         ?string $expected
-    ) {
+    ): void {
         $printer = new Printer($verbosity, $colors, $width);
 
         $actual = $printer->getRequirementErrorMessage($requirement);
@@ -62,7 +71,7 @@ class PrinterTest extends TestCase
         string $message,
         int $messageVerbosity,
         string $expected
-    ) {
+    ): void {
         $printer = new Printer($verbosity, $colors, $width);
 
         ob_start();

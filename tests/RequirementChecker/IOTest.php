@@ -2,9 +2,18 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the box project.
+ *
+ * (c) Kevin Herrera <kevin@herrera.io>
+ *     Théo Fidry <theo.fidry@gmail.com>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace KevinGH\Box\RequirementChecker;
 
-use function array_merge;
 use PHPUnit\Framework\TestCase;
 use function putenv;
 
@@ -16,7 +25,7 @@ class IOTest extends TestCase
     /**
      * @dataProvider provideOptions
      */
-    public function test_it_can_parse_the_options(array $argv, bool $interactive, int $verbosity)
+    public function test_it_can_parse_the_options(array $argv, bool $interactive, int $verbosity): void
     {
         $_SERVER['argv'] = $argv;
 
@@ -29,7 +38,7 @@ class IOTest extends TestCase
     /**
      * @dataProvider provideOptionsWithShellVerbosity
      */
-    public function test_it_uses_the_shell_verbosity_environment_variable_over_the_options(array $argv, string $putenv, bool $interactive, int $verbosity)
+    public function test_it_uses_the_shell_verbosity_environment_variable_over_the_options(array $argv, string $putenv, bool $interactive, int $verbosity): void
     {
         $_SERVER['argv'] = $argv;
         putenv($putenv);

@@ -2,8 +2,17 @@
 
 declare(strict_types=1);
 
-namespace KevinGH\Box\RequirementChecker;
+/*
+ * This file is part of the box project.
+ *
+ * (c) Kevin Herrera <kevin@herrera.io>
+ *     Théo Fidry <theo.fidry@gmail.com>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
 
+namespace KevinGH\Box\RequirementChecker;
 
 use Error;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +22,7 @@ use PHPUnit\Framework\TestCase;
  */
 class RequirementTest extends TestCase
 {
-    public function test_it_can_be_created()
+    public function test_it_can_be_created(): void
     {
         $requirement = new Requirement(
             'return true;',
@@ -27,7 +36,7 @@ class RequirementTest extends TestCase
         $this->assertSame('Help message', $requirement->getHelpText());
     }
 
-    public function test_it_evaluates_the_check_lazily()
+    public function test_it_evaluates_the_check_lazily(): void
     {
         $requirement = new Requirement(
             'throw new \Error();',
@@ -46,7 +55,7 @@ class RequirementTest extends TestCase
         }
     }
 
-    public function test_it_casts_the_fulfilled_result_into_a_boolean()
+    public function test_it_casts_the_fulfilled_result_into_a_boolean(): void
     {
         $requirement = new Requirement(
             'return 1;',
@@ -73,7 +82,7 @@ class RequirementTest extends TestCase
         $this->assertTrue($requirement->isFulfilled());
     }
 
-    public function test_it_evaluates_the_check_only_once()
+    public function test_it_evaluates_the_check_only_once(): void
     {
         $GLOBALS['x'] = -1;
 

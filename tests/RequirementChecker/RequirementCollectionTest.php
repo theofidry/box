@@ -2,27 +2,37 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the box project.
+ *
+ * (c) Kevin Herrera <kevin@herrera.io>
+ *     Théo Fidry <theo.fidry@gmail.com>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace KevinGH\Box\RequirementChecker;
 
-use function iterator_to_array;
 use PHPUnit\Framework\TestCase;
+use function iterator_to_array;
 
 /**
  * @covers \KevinGH\Box\RequirementChecker\RequirementCollection
  */
 class RequirementCollectionTest extends TestCase
 {
-    public function test_it_is_empty_by_default()
+    public function test_it_is_empty_by_default(): void
     {
         $requirements = new RequirementCollection();
 
         $this->assertSame([], iterator_to_array($requirements));
         $this->assertSame([], $requirements->getRequirements());
-        $this->assertCount(tests/StubGeneratorTest.php0, $requirements);
+        $this->assertCount(0, $requirements);
         $this->assertTrue($requirements->evaluateRequirements());
     }
 
-    public function test_it_can_have_and_evaluate_requirements()
+    public function test_it_can_have_and_evaluate_requirements(): void
     {
         $requirements = new RequirementCollection();
 

@@ -13,13 +13,10 @@ EOF;
 $config = PhpCsFixer\Config::create()
     ->setRiskyAllowed(true)
     ->setRules([
-        '@PHP71Migration:risky' => true,
-        '@PHP70Migration:risky' => true,
-        '@PHP56Migration' => true,
         '@Symfony' => true,
         '@Symfony:risky' => true,
         'align_multiline_comment' => true,
-        'array_syntax' => ['syntax' => 'short'],
+        'array_syntax' => ['syntax' => 'long'],
         'blank_line_before_statement' => [
             'statements' => [
                 'continue',
@@ -34,7 +31,7 @@ $config = PhpCsFixer\Config::create()
         'compact_nullable_typehint' => true,
         'header_comment' => ['header' => $header],
         'heredoc_to_nowdoc' => true,
-        'list_syntax' => ['syntax' => 'short'],
+        'list_syntax' => ['syntax' => 'long'],
         'method_argument_space' => ['ensure_fully_multiline' => true],
         'no_extra_consecutive_blank_lines' => [
             'tokens' => [
@@ -75,12 +72,6 @@ $config = PhpCsFixer\Config::create()
             ->in('tests')
             ->append(['bin/box'])
             ->notName('default_stub.php')
-            ->exclude('check-requirements')
-            ->notName('Checker.php')
-            ->notName('IO.php')
-            ->notName('Printer.php')
-            ->notName('Requirement.php')
-            ->notName('RequirementCollection.php')
     )
 ;
 

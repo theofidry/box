@@ -2,17 +2,30 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the box project.
+ *
+ * (c) Kevin Herrera <kevin@herrera.io>
+ *     Théo Fidry <theo.fidry@gmail.com>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace KevinGH\Box\RequirementChecker;
 
-use function json_decode;
 use PHPUnit\Framework\TestCase;
+use function json_decode;
 
+/**
+ * @coversNothing
+ */
 class AppRequirementsFactoryTest extends TestCase
 {
     /**
      * @dataProvider provideLockContents
      */
-    public function test_it_can_generate_and_serialized_requirements_from_a_composer_lock_file(string $composerLockContents, array $expected)
+    public function test_it_can_generate_and_serialized_requirements_from_a_composer_lock_file(string $composerLockContents, array $expected): void
     {
         $actual = AppRequirementsFactory::create(json_decode($composerLockContents, true));
 

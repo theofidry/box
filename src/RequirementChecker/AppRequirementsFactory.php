@@ -14,14 +14,10 @@ declare(strict_types=1);
 
 namespace KevinGH\Box\RequirementChecker;
 
-use Assert\Assertion;
-use KevinGH\Box\Json\Json;
-use UnexpectedValueException;
 use function array_diff_key;
 use function array_key_exists;
 use function array_map;
 use function sprintf;
-use function str_replace;
 use function substr;
 
 /**
