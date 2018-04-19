@@ -52,7 +52,7 @@ tc: vendor/bin/phpunit
 .PHONY: tm
 tm:			## Run Infection
 tm:	vendor/bin/phpunit fixtures/default_stub.php
-	php -d zend.enable_gc=0 bin/infection
+	php -d zend.enable_gc=0 bin/infection --test-framework-options="--config phpunit_infection.xml.dist"
 
 .PHONY: e2e
 e2e:			## Run the end-to-end tests

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true">
+
+    <php>
+        <env name="BOX_ALLOW_XDEBUG" value="1"/>
+    </php>
+
+    <testsuites>
+        <testsuite name="Box Test Suite">
+            <directory>tests/</directory>
+            <exclude>tests/RequirementChecker/IOTest.php</exclude>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src/</directory>
+
+            <exclude>
+                <file>src/functions.php</file>
+                <directory>src/Console/Logger</directory>
+                <directory>src/Test</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+
+</phpunit>
