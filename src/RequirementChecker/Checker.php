@@ -82,7 +82,7 @@ final class Checker
 
         foreach ($requirements->getRequirements() as $requirement) {
             if ($errorMessage = $printer->getRequirementErrorMessage($requirement)) {
-                if ($printer->getVerbosity() === IO::VERBOSITY_DEBUG) {
+                if (IO::VERBOSITY_DEBUG === $printer->getVerbosity()) {
                     $printer->printvln('✘ '.$requirement->getTestMessage(), IO::VERBOSITY_DEBUG, 'red');
                     $printer->printv('  ', IO::VERBOSITY_DEBUG);
                     $errorMessages[] = $errorMessage;
@@ -94,7 +94,7 @@ final class Checker
                 continue;
             }
 
-            if ($printer->getVerbosity() === IO::VERBOSITY_DEBUG) {
+            if (IO::VERBOSITY_DEBUG === $printer->getVerbosity()) {
                 $printer->printvln('✔ '.$requirement->getHelpText(), IO::VERBOSITY_DEBUG, 'green');
                 $printer->printv('  ', IO::VERBOSITY_DEBUG);
             } else {
@@ -102,7 +102,7 @@ final class Checker
             }
         }
 
-        if ($printer->getVerbosity() !== IO::VERBOSITY_DEBUG && count($requirements) > 0) {
+        if (IO::VERBOSITY_DEBUG !== $printer->getVerbosity() && count($requirements) > 0) {
             $printer->printvln('', $verbosity);
         }
 

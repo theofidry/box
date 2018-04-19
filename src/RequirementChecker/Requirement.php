@@ -27,8 +27,8 @@ final class Requirement
     /**
      * @param string $checkIsFulfilled Callable as a string (it will be evaluated with `eval()` returning a `bool` value telling whether the
      *                                 requirement is fulfilled or not. The condition is evaluated lazily.
-     * @param string      $testMessage The message for testing the requirement
-     * @param string $helpText    The help text (when null, it will be inferred from $helpHtml, i.e. stripped from HTML tags)
+     * @param string $testMessage      The message for testing the requirement
+     * @param string $helpText         The help text (when null, it will be inferred from $helpHtml, i.e. stripped from HTML tags)
      */
     public function __construct(
         $checkIsFulfilled,
@@ -40,16 +40,13 @@ final class Requirement
         $this->helpText = $helpText;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isFulfilled()
     {
         if (null === $this->fulfilled) {
             $this->fulfilled = eval($this->checkIsFulfilled);
         }
 
-        return !!$this->fulfilled;  // Cast to boolean, `(bool)` and `boolval()` are not available in PHP 5.3
+        return (bool) $this->fulfilled;  // Cast to boolean, `(bool)` and `boolval()` are not available in PHP 5.3
     }
 
     /**

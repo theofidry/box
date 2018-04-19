@@ -66,12 +66,13 @@ $config = PhpCsFixer\Config::create()
         'yoda_style' => true,
     ])
     ->setFinder(
-        PhpCsFixer\Finder::create()
-            ->in('fixtures')
-            ->in('src')
-            ->in('tests')
-            ->append(['bin/box'])
-            ->notName('default_stub.php')
+        PhpCsFixer\Finder::create()->append([
+            'src/RequirementChecker/Checker.php',
+            'src/RequirementChecker/IO.php',
+            'src/RequirementChecker/Printer.php',
+            'src/RequirementChecker/Requirement.php',
+            'src/RequirementChecker/RequirementCollection.php',
+        ])
     )
 ;
 

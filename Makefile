@@ -19,6 +19,7 @@ clean:
 cs:			## Fix CS
 cs: vendor-bin/php-cs-fixer/vendor/bin/php-cs-fixer
 	php -d zend.enable_gc=0 vendor-bin/php-cs-fixer/vendor/bin/php-cs-fixer fix
+	php -d zend.enable_gc=0 vendor-bin/php-cs-fixer/vendor/bin/php-cs-fixer fix --config .php_cs_53.dist
 
 .PHONY: compile
 compile:		## Compile the application into the PHAR

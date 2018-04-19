@@ -32,7 +32,7 @@ final class RequirementCollection implements IteratorAggregate, Countable
     /**
      * {@inheritdoc}
      *
-     * @return Traversable|Requirement[]
+     * @return Requirement[]|Traversable
      */
     public function getIterator()
     {
@@ -58,9 +58,9 @@ final class RequirementCollection implements IteratorAggregate, Countable
     /**
      * Adds a mandatory requirement evaluated lazily.
      *
-     * @param string      $checkIsFulfilled Whether the requirement is fulfilled; This string is will be evaluated with `eval()` because
-     *                                      PHP does not support the serialization or the export of closures.
-     * @param string      $testMessage      The message for testing the requirement
+     * @param string $checkIsFulfilled whether the requirement is fulfilled; This string is will be evaluated with `eval()` because
+     *                                 PHP does not support the serialization or the export of closures
+     * @param string $testMessage      The message for testing the requirement
      * @param string $helpText         The help text (when null, it will be inferred from $helpHtml, i.e. stripped from HTML tags)
      */
     public function addRequirement($checkIsFulfilled, $testMessage, $helpText)
@@ -81,7 +81,7 @@ final class RequirementCollection implements IteratorAggregate, Countable
     /**
      * Returns the PHP configuration file (php.ini) path.
      *
-     * @return string|false php.ini file path
+     * @return false|string php.ini file path
      */
     public function getPhpIniPath()
     {

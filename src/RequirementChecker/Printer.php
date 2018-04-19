@@ -35,9 +35,9 @@ final class Printer
     private $width;
 
     /**
-     * @param int $verbosity
-     * @param bool $supportColors
-     * @param int|null $width
+     * @param int      $verbosity
+     * @param bool     $supportColors
+     * @param null|int $width
      */
     public function __construct($verbosity, $supportColors, $width = null)
     {
@@ -68,9 +68,9 @@ final class Printer
     }
 
     /**
-     * @param string $title
-     * @param int $verbosity
-     * @param string|null $style
+     * @param string      $title
+     * @param int         $verbosity
+     * @param null|string $style
      */
     public function title($title, $verbosity, $style = null)
     {
@@ -108,15 +108,15 @@ final class Printer
     }
 
     /**
-     * @param string $title
-     * @param string $message
-     * @param int   $verbosity
-     * @param string|null $style
+     * @param string      $title
+     * @param string      $message
+     * @param int         $verbosity
+     * @param null|string $style
      */
     public function block($title, $message, $verbosity, $style = null)
     {
-        $prefix = ' [' . $title . '] ';
-        $message = $prefix .trim($message);
+        $prefix = ' ['.$title.'] ';
+        $message = $prefix.trim($message);
 
         $lines = array();
 
@@ -145,9 +145,9 @@ final class Printer
     }
 
     /**
-     * @param string $message
-     * @param int   $verbosity
-     * @param string|null $style
+     * @param string      $message
+     * @param int         $verbosity
+     * @param null|string $style
      */
     public function printvln($message, $verbosity, $style = null)
     {
@@ -156,9 +156,9 @@ final class Printer
     }
 
     /**
-     * @param string $message
-     * @param int   $verbosity
-     * @param string|null $style
+     * @param string      $message
+     * @param int         $verbosity
+     * @param null|string $style
      */
     public function printv($message, $verbosity, $style = null)
     {
@@ -177,5 +177,4 @@ final class Printer
 
         echo $message;
     }
-
 }

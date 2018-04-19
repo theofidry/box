@@ -66,6 +66,7 @@ final class IO
 
     /**
      * @param mixed
+     * @param mixed $values
      *
      * @return bool
      */
@@ -79,10 +80,11 @@ final class IO
                 str_replace(' ', '\s+', preg_quote($value, '/'))
             );
 
-            if (preg_match($regexp, $this->options) === 1) {
+            if (1 === preg_match($regexp, $this->options)) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -176,7 +178,7 @@ final class IO
 
         if (DIRECTORY_SEPARATOR === '\\') {
             return
-                '10.0.10586' === PHP_WINDOWS_VERSION_MAJOR . '.' . PHP_WINDOWS_VERSION_MINOR . '.' . PHP_WINDOWS_VERSION_BUILD
+                '10.0.10586' === PHP_WINDOWS_VERSION_MAJOR.'.'.PHP_WINDOWS_VERSION_MINOR.'.'.PHP_WINDOWS_VERSION_BUILD
                 || false !== getenv('ANSICON')
                 || 'ON' === getenv('ConEmuANSI')
                 || 'xterm' === getenv('TERM');
