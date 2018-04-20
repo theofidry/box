@@ -71,7 +71,7 @@ final class Checker
 
         $printer->printvln('', $verbosity);
 
-        if (count($requirements) > 0) {
+        if (\count($requirements) > 0) {
             $printer->printvln('> Checking Box requirements:', $verbosity);
             $printer->printv('  ', $verbosity);
         } else {
@@ -102,7 +102,7 @@ final class Checker
             }
         }
 
-        if (IO::VERBOSITY_DEBUG !== $printer->getVerbosity() && count($requirements) > 0) {
+        if (IO::VERBOSITY_DEBUG !== $printer->getVerbosity() && \count($requirements) > 0) {
             $printer->printvln('', $verbosity);
         }
 
@@ -131,7 +131,7 @@ final class Checker
         $requirements = new RequirementCollection();
 
         foreach ($config as $constraint) {
-            call_user_func_array(array($requirements, 'addRequirement'), $constraint);
+            \call_user_func_array(array($requirements, 'addRequirement'), $constraint);
         }
 
         return $requirements;

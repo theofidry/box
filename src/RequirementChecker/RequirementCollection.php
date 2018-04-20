@@ -44,7 +44,7 @@ final class RequirementCollection implements IteratorAggregate, Countable
      */
     public function count()
     {
-        return count($this->requirements);
+        return \count($this->requirements);
     }
 
     /**
@@ -93,7 +93,7 @@ final class RequirementCollection implements IteratorAggregate, Countable
      */
     public function evaluateRequirements()
     {
-        return array_reduce(
+        return \array_reduce(
             $this->requirements,
             /**
              * @param bool        $checkPassed
