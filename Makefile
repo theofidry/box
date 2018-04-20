@@ -1,5 +1,6 @@
 .DEFAULT_GOAL := help
 
+PHPNOGC=php -d zend.enable_gc=0
 
 .PHONY: help
 help:
@@ -16,10 +17,11 @@ clean:
 	git clean --exclude=.idea/ -ffdx
 
 .PHONY: cs
+PHPCSFIXER=vendor-bin/php-cs-fixer/vendor/bin/php-cs-fixer
 cs:			## Fix CS
 cs: vendor-bin/php-cs-fixer/vendor/bin/php-cs-fixer
-	php -d zend.enable_gc=0 vendor-bin/php-cs-fixer/vendor/bin/php-cs-fixer fix
-	php -d zend.enable_gc=0 vendor-bin/php-cs-fixer/vendor/bin/php-cs-fixer fix --config .php_cs_53.dist
+	$(PHPNOGC) $(PHPCSFIXER) fix
+	$(PHPNOGC) $(PHPCSFIXER) fix --config .php_cs_53.dist
 
 .PHONY: compile
 compile:		## Compile the application into the PHAR
@@ -42,7 +44,7 @@ test: tu e2e e2e_check_requirements
 .PHONY: tu
 tu:			## Run the unit tests
 tu: vendor/bin/phpunit fixtures/default_stub.php
-	php -d zend.enable_gc=0 bin/phpunit
+	$(PHPNOGC) bin/phpunit
 
 .PHONY: tc
 tc:			## Run the unit tests with code coverage
@@ -52,7 +54,7 @@ tc: vendor/bin/phpunit
 .PHONY: tm
 tm:			## Run Infection
 tm:	vendor/bin/phpunit fixtures/default_stub.php
-	php -d zend.enable_gc=0 bin/infection --test-framework-options="--config phpunit_infection.xml.dist"
+	$(PHPNOGC) bin/infection --test-framework-options="--config phpunit_infection.xml.dist"
 
 .PHONY: e2e
 e2e:			## Run the end-to-end tests
@@ -69,6 +71,9 @@ e2e: box_dev.json
 
 
 .PHONY: e2e_check_requirements
+DOCKER=docker run -i --rm -w /opt/box
+PHP7PHAR=box_php72 php default.phar -vvv --no-ansi
+PHP5PHAR=box_php53 php default.phar -vvv --no-ansi
 e2e_check_requirements:	## Runs the end-to-end tests for the check requirements feature
 e2e_check_requirements: bin/box src vendor
 	.docker/build
@@ -76,31 +81,31 @@ e2e_check_requirements: bin/box src vendor
 	bin/box compile --working-dir fixtures/check-requirements/pass-no-config/
 	
 	rm fixtures/check-requirements/pass-no-config/actual-output || true
-	docker run -i --rm -v "$$PWD/fixtures/check-requirements/pass-no-config":/opt/box -w /opt/box box_php53 php default.phar -vvv --no-ansi > fixtures/check-requirements/pass-no-config/actual-output
+	$(DOCKER) -v "$$PWD/fixtures/check-requirements/pass-no-config":/opt/box $(PHP5PHAR) > fixtures/check-requirements/pass-no-config/actual-output
 	diff fixtures/check-requirements/pass-no-config/expected-output-53 fixtures/check-requirements/pass-no-config/actual-output
 	
 	rm fixtures/check-requirements/pass-no-config/actual-output || true
-	docker run -i --rm -v "$$PWD/fixtures/check-requirements/pass-no-config":/opt/box -w /opt/box box_php72 php default.phar -vvv --no-ansi > fixtures/check-requirements/pass-no-config/actual-output
+	$(DOCKER) -v "$$PWD/fixtures/check-requirements/pass-no-config":/opt/box $(PHP7PHAR) > fixtures/check-requirements/pass-no-config/actual-output
 	diff fixtures/check-requirements/pass-no-config/expected-output-72 fixtures/check-requirements/pass-no-config/actual-output
 
 	bin/box compile --working-dir fixtures/check-requirements/pass-complete/
 	
 	rm fixtures/check-requirements/pass-complete/actual-output || true
-	docker run -i --rm -v "$$PWD/fixtures/check-requirements/pass-complete":/opt/box -w /opt/box box_php53 php default.phar -vvv --no-ansi > fixtures/check-requirements/pass-complete/actual-output
+	$(DOCKER) -v "$$PWD/fixtures/check-requirements/pass-complete":/opt/box $(PHP5PHAR) > fixtures/check-requirements/pass-complete/actual-output
 	diff fixtures/check-requirements/pass-complete/expected-output-53 fixtures/check-requirements/pass-complete/actual-output
 	
 	rm fixtures/check-requirements/pass-complete/actual-output || true
-	docker run -i --rm -v "$$PWD/fixtures/check-requirements/pass-complete":/opt/box -w /opt/box box_php72 php default.phar -vvv --no-ansi > fixtures/check-requirements/pass-complete/actual-output
+	$(DOCKER) -v "$$PWD/fixtures/check-requirements/pass-complete":/opt/box $(PHP7PHAR) > fixtures/check-requirements/pass-complete/actual-output
 	diff fixtures/check-requirements/pass-complete/expected-output-72 fixtures/check-requirements/pass-complete/actual-output
 
 	bin/box compile --working-dir fixtures/check-requirements/fail-complete/
 	
 	rm fixtures/check-requirements/fail-complete/actual-output || true
-	docker run -i --rm -v "$$PWD/fixtures/check-requirements/fail-complete":/opt/box -w /opt/box box_php53 php default.phar -vvv --no-ansi > fixtures/check-requirements/fail-complete/actual-output || true
+	$(DOCKER) -v "$$PWD/fixtures/check-requirements/fail-complete":/opt/box $(PHP5PHAR) > fixtures/check-requirements/fail-complete/actual-output || true
 	diff fixtures/check-requirements/fail-complete/expected-output-53 fixtures/check-requirements/fail-complete/actual-output
 	
 	rm fixtures/check-requirements/fail-complete/actual-output || true
-	docker run -i --rm -v "$$PWD/fixtures/check-requirements/fail-complete":/opt/box -w /opt/box box_php72 php default.phar -vvv --no-ansi > fixtures/check-requirements/fail-complete/actual-output || true
+	$(DOCKER) -v "$$PWD/fixtures/check-requirements/fail-complete":/opt/box $(PHP7PHAR) > fixtures/check-requirements/fail-complete/actual-output || true
 	diff fixtures/check-requirements/fail-complete/expected-output-72 fixtures/check-requirements/fail-complete/actual-output
 
 
@@ -116,20 +121,20 @@ blackfire: bin/box src vendor
 	composer dump-autoload --classmap-authoritative
 
 	# Profile compiling the PHAR from the source code
-	blackfire --reference=1 --samples=5 run php -d zend.enable_gc=0 -d bin/box compile --quiet
+	blackfire --reference=1 --samples=5 run $(PHPNOGC) -d bin/box compile --quiet
 
 	# Profile compiling the PHAR from the PHAR
 	mv -fv bin/box.phar .
-	blackfire --reference=2 --samples=5 run php -d zend.enable_gc=0 -d box.phar compile --quiet
+	blackfire --reference=2 --samples=5 run $(PHPNOGC) -d box.phar compile --quiet
 
 	# Cleanup
 	composer install
 	rm box.phar
 
 
-##
-## Rules from files
-##---------------------------------------------------------------------------
+#
+# Rules from files
+#---------------------------------------------------------------------------
 
 composer.lock: composer.json
 	composer install
