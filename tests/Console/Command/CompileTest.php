@@ -27,9 +27,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Traversable;
+use function file_put_contents;
 use function KevinGH\Box\FileSystem\mirror;
 use function KevinGH\Box\FileSystem\rename;
 use function preg_replace;
+use function sort;
 
 /**
  * @covers \KevinGH\Box\Console\Command\Compile
@@ -43,6 +45,9 @@ class CompileTest extends CommandTestCase
     public function test_it_can_build_a_PHAR_file(): void
     {
         mirror(self::FIXTURES_DIR.'/dir000', $this->tmp);
+
+        file_put_contents('composer.json', '{}');
+        file_put_contents('composer.lock', '{}');
 
         $shebang = sprintf('#!%s', (new PhpExecutableFinder())->find());
 
@@ -101,10 +106,11 @@ Building the PHAR "/path/to/tmp/test.phar"
 ? Mapping paths
   - a/deep/test/directory > sub
 ? Adding main file: /path/to/tmp/run.php
+? Adding requirements checker
 ? Adding binary files
     > 1 file(s)
 ? Adding files
-    > 3 file(s)
+    > 5 file(s)
 ? Generating new stub
   - Using shebang line: $shebang
   - Using banner:
@@ -149,6 +155,8 @@ $shebang
 
 Phar::mapPhar('alias-test.phar');
 
+require 'phar://alias-test.phar/.box/check_requirements.php';
+
 require 'phar://alias-test.phar/run.php';
 
 __HALT_COMPILER(); ?>
@@ -164,6 +172,18 @@ PHP;
         );
 
         $expectedFiles = [
+            '/.box/',
+            '/.box/.requirements.php',
+            '/.box/Checker.php',
+            '/.box/IO.php',
+            '/.box/Printer.php',
+            '/.box/Requirement.php',
+            '/.box/RequirementCollection.php',
+            '/.box/Semver.php',
+            '/.box/Terminal.php',
+            '/.box/check_requirements.php',
+            '/composer.json',
+            '/composer.lock',
             '/one/',
             '/one/test.php',
             '/run.php',
@@ -172,9 +192,21 @@ PHP;
             '/test.php',
             '/two/',
             '/two/test.png',
+            '/vendor/',
+            '/vendor/autoload.php',
+            '/vendor/composer/',
+            '/vendor/composer/ClassLoader.php',
+            '/vendor/composer/LICENSE',
+            '/vendor/composer/autoload_classmap.php',
+            '/vendor/composer/autoload_namespaces.php',
+            '/vendor/composer/autoload_psr4.php',
+            '/vendor/composer/autoload_real.php',
+            '/vendor/composer/autoload_static.php',
         ];
 
         $actualFiles = $this->retrievePharFiles($phar);
+
+        sort($actualFiles);
 
         $this->assertSame($expectedFiles, $actualFiles);
     }

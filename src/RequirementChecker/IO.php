@@ -104,7 +104,7 @@ final class IO
         }
 
         if (\function_exists('posix_isatty')) {
-            if (!@\posix_isatty(\STDOUT) && false === \getenv('SHELL_INTERACTIVE')) {
+            if (!@\posix_isatty(STDOUT) && false === \getenv('SHELL_INTERACTIVE')) {
                 return false;
             }
         }
@@ -179,7 +179,7 @@ final class IO
         if (DIRECTORY_SEPARATOR === '\\') {
             return (
                     \function_exists('sapi_windows_vt100_support')
-                    && \sapi_windows_vt100_support(\STDOUT)
+                    && \sapi_windows_vt100_support(STDOUT)
                 )
                 || false !== \getenv('ANSICON')
                 || 'ON' === \getenv('ConEmuANSI')
@@ -187,14 +187,14 @@ final class IO
         }
 
         if (\function_exists('stream_isatty')) {
-            return \stream_isatty(\STDOUT);
+            return \stream_isatty(STDOUT);
         }
 
         if (\function_exists('posix_isatty')) {
-            return \posix_isatty(\STDOUT);
+            return \posix_isatty(STDOUT);
         }
 
-        $stat = \fstat(\STDOUT);
+        $stat = \fstat(STDOUT);
 
         // Check if formatted mode is S_IFCHR
         return $stat ? 0020000 === ($stat['mode'] & 0170000) : false;

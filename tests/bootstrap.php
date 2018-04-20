@@ -16,6 +16,7 @@ use org\bovigo\vfs\vfsStreamWrapper;
 use function KevinGH\Box\register_compactor_aliases;
 
 $loader = require __DIR__.'/../vendor/autoload.php';
+require __DIR__.'/../vendor/humbug/php-scoper/src/functions.php';
 
 vfsStreamWrapper::register();
 
