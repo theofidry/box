@@ -80,7 +80,8 @@ class ComposerProcessFactory
             $composerCommand[] = '--ansi';
         }
 
-        return $this->createProcess($composerCommand);
+        ////////// Important is to remove the composer original inis here
+        return $this->createProcess($composerCommand, ['COMPOSER_ORIGINAL_INIS' => '']);
     }
 
     public function getVendorDirProcess(): Process
