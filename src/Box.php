@@ -35,8 +35,8 @@ use Phar;
 use RecursiveDirectoryIterator;
 use RuntimeException;
 use Seld\PharUtils\Timestamps;
-use SplFileInfo;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Webmozart\Assert\Assert;
 use function array_map;
 use function array_unshift;
@@ -46,6 +46,7 @@ use function extension_loaded;
 use function file_exists;
 use function getcwd;
 use function is_object;
+use function is_string;
 use function openssl_pkey_export;
 use function openssl_pkey_get_details;
 use function openssl_pkey_get_private;
@@ -164,8 +165,8 @@ final class Box implements Countable
             $files = [...$files, ...$unknownFiles];
 
             uasort($files, static function (SplFileInfo|string $a, SplFileInfo|string $b) {
-                $a = is_string($a) ? $a : $a->getPath();
-                $b = is_string($b) ? $b : $b->getPath();
+                $a = is_string($a) ? $a : $a->getRelativePath();
+                $b = is_string($b) ? $b : $b->getRelativePath();
 
                 return strcmp($a, $b);
             });
